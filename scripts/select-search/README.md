@@ -6,26 +6,8 @@ letters, dus "Poule" vinden in "Restaurant Poule & Poulette B.V." lukt niet. Met
 Het originele `<select>` blijft de bron van waarheid en wordt enkel verborgen. Het formulier
 verstuurt dus exact hetzelfde als voorheen.
 
-## Installeren
-
-1. Installeer Tampermonkey voor je browser:
-
-   | Browser | Extensie | Extra stap |
-   |---|---|---|
-   | Firefox | [installeren](https://addons.mozilla.org/firefox/addon/tampermonkey/) | geen |
-   | Chrome | [installeren](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) | zie stap 2 |
-   | Edge | [installeren](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd) | zie stap 2 |
-
-2. Alleen Chrome en Edge: ga naar `chrome://extensions` of `edge://extensions`, klik bij
-   Tampermonkey op *Details* en zet **Allow user scripts** aan. Zonder dat draait geen enkel
-   userscript.
-
-3. Open de
-   [installatielink](https://raw.githubusercontent.com/glgoose/select-search/main/dist/select-search.user.js)
-   en klik op installeren.
-
-Beheert je werkgever je browser, dan zijn extensies mogelijk beperkt tot een goedgekeurde lijst.
-Vraag het na bij IT. Kan het niet, gebruik dan de [bookmarklet](#bookmarklet).
+[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)
+· gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Gebruik
 
@@ -48,9 +30,10 @@ Klik een dropdown aan en typ.
 
 ## Bookmarklet
 
-Alternatief zonder extensie. Werkt overal, maar je klikt hem zelf aan per pagina.
+Alternatief zonder extensie, voor wie geen extensies mag installeren. Werkt overal, maar je klikt
+hem zelf aan per pagina.
 
-1. Kopieer de inhoud van [`dist/bookmarklet.txt`](dist/bookmarklet.txt).
+1. Kopieer de inhoud van [`bookmarklet.txt`](bookmarklet.txt).
 2. Maak een bladwijzer met naam `Zoek in dropdown` en die tekst als URL.
 3. Klik hem aan op de pagina met de dropdown. Nog eens klikken doet een herscan.
 
@@ -62,13 +45,9 @@ route.
 `src/select-search.js` bevat de volledige logica, zonder dependencies.
 
 ```sh
-./build.sh                    # genereert dist/ (userscript + bookmarklet)
+./build.sh                    # genereert select-search.user.js en bookmarklet.txt
 python3 -m http.server 8731   # open http://localhost:8731/test/fixture.html
 ```
 
 Hoog bij elke wijziging `@version` op in `src/userscript-header.txt`, anders krijgt niemand de
 update binnen.
-
-## Licentie
-
-MIT

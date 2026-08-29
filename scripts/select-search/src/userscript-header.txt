@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Doorzoekbare dropdowns (select-search)
-// @namespace    https://github.com/glgoose/select-search
-// @version      1.0.0
+// @namespace    https://github.com/glgoose/ua-userscripts
+// @version      1.1.0
 // @description  Geeft elke <select> met veel opties een zoekveld met substring-zoeken.
 // @author       glgoose
 // @license      MIT
-// @homepageURL  https://github.com/glgoose/select-search
-// @supportURL   https://github.com/glgoose/select-search/issues
-// @downloadURL  https://raw.githubusercontent.com/glgoose/select-search/main/dist/select-search.user.js
-// @updateURL    https://raw.githubusercontent.com/glgoose/select-search/main/dist/select-search.user.js
+// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/select-search
+// @supportURL   https://github.com/glgoose/ua-userscripts/issues
+// @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js
+// @updateURL    https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js
 // @match        https://bipp.biotechpartner.be/web/*
 // @run-at       document-idle
 // @grant        none

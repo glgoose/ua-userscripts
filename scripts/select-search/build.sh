@@ -6,7 +6,7 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 src="$here/src/select-search.js"
 hdr="$here/src/userscript-header.txt"
-dist="$here/dist"
+out="$here"
 
 for f in "$src" "$hdr"; do
   if [ ! -f "$f" ]; then
@@ -25,13 +25,11 @@ if grep -q 'MATCH_PLACEHOLDER' "$hdr"; then
   exit 1
 fi
 
-mkdir -p "$dist"
-
 # 1. Userscript = metadatablok + ongewijzigde core.
-cat "$hdr" "$src" > "$dist/select-search.user.js"
+cat "$hdr" "$src" > "$out/select-search.user.js"
 
 # 2. Bookmarklet = core, URL-encoded achter javascript:.
-python3 - "$src" "$dist/bookmarklet.txt" <<'PY'
+python3 - "$src" "$out/bookmarklet.txt" <<'PY'
 import io, sys, urllib.parse
 
 src, out = sys.argv[1], sys.argv[2]
@@ -58,9 +56,9 @@ print('bookmarklet: %d tekens' % len(url))
 PY
 
 if command -v pbcopy >/dev/null 2>&1; then
-  pbcopy < "$dist/bookmarklet.txt"
+  pbcopy < "$out/bookmarklet.txt"
   echo "bookmarklet gekopieerd naar het klembord"
 fi
 
-echo "geschreven: $dist/select-search.user.js"
-echo "geschreven: $dist/bookmarklet.txt"
+echo "geschreven: $out/select-search.user.js"
+echo "geschreven: $out/bookmarklet.txt"
