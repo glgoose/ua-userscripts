@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>select-search fixture</title>
+<style>
+  body{font:13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:24px;color:#111}
+  table{border-spacing:0 6px}
+  td:first-child{padding-right:24px}
+  select{width:400px}
+  #uit{margin-top:20px;padding:8px;background:#f2f5fb;border:1px solid #cbd8ee;white-space:pre-wrap}
+  .bar{background:#eaf1fb;padding:8px;margin:-24px -24px 20px}
+</style>
+</head>
+<body>
+<div class="bar">Testpagina, bootst de werk-app na</div>
+<form id="f">
+  <label><input type="checkbox" id="incl"> Inclusief niet-raamcontractartikelen</label>
+  <table>
+    <tr><td><label for="lev">Leverancier</label></td>
+        <td><select id="lev" name="leverancier"></select></td></tr>
+    <tr><td><label for="fab">Fabricaat</label></td>
+        <td><select id="fab" name="fabricaat"></select></td></tr>
+    <tr><td><label for="klein">Klein menu</label></td>
+        <td><select id="klein" name="klein">
+          <option value="">--</option><option>Ja</option><option>Nee</option>
+        </select></td></tr>
+  </table>
+  <button type="submit">Verzenden</button>
+</form>
+<div id="uit">nog niets verzonden</div>
+
+<script>
+var VOOR = ['Restaurant','Bakkerij','Groothandel','Technische Dienst','Installatiebedrijf',
+  'Drukkerij','Transport','Bouwbedrijf','Schoonmaak','Catering','Labo','Apotheek',
+  'Garage','Kwekerij','Slagerij','Boekhandel','Meubelmakerij','Elektro'];
+var NAAM = ['Poule & Poulette','Van den Berghe','De Smet','Janssens','Peeters','Maertens',
+  'Vermeulen','Claeys','De Vos','Willems','Lemmens','Coppens','Declercq','Genée',
+  'Vanhoutte','Segers','Wouters','Dhondt','Vandenbroucke','Storms'];
+var VORM = ['B.V.','N.V.','BVBA','VZW','Comm.V.','& Zonen'];
+
+function maak(n, offset){
+  var out = [];
+  for (var i = 0; i < n; i++) {
+    var v = VOOR[(i + offset) % VOOR.length];
+    var m = NAAM[(i * 7 + offset) % NAAM.length];
+    var s = VORM[(i * 3 + offset) % VORM.length];
+    out.push({v: 'ID' + (1000 + i + offset), t: v + ' ' + m + ' ' + s + ' (' + (1000 + i + offset) + ')'});
+  }
+  return out;
+}
+
+function vul(sel, n, offset){
+  var huidig = sel.value;
+  sel.innerHTML = '';
+  var leeg = document.createElement('option');
+  leeg.value = ''; leeg.textContent = '';
+  sel.appendChild(leeg);
+  maak(n, offset).forEach(function(o){
+    var e = document.createElement('option');
+    e.value = o.v; e.textContent = o.t;
+    sel.appendChild(e);
+  });
+  sel.value = huidig;
+}
+
+var lev = document.getElementById('lev'), fab = document.getElementById('fab');
+function herlaad(){
+  var inclusief = document.getElementById('incl').checked;
+  vul(lev, inclusief ? 850 : 120, 0);
+  vul(fab, inclusief ? 400 : 60, 500);
+}
+document.getElementById('incl').addEventListener('change', herlaad);
+herlaad();
+
+lev.addEventListener('change', function(){
+  console.log('[fixture] change op leverancier:', lev.value, '/', lev.options[lev.selectedIndex].textContent);
+});
+
+document.getElementById('f').addEventListener('submit', function(e){
+  e.preventDefault();
+  var d = new FormData(e.target);
+  document.getElementById('uit').textContent =
+    'verzonden:\n  leverancier = ' + d.get('leverancier') +
+    '\n  fabricaat = ' + d.get('fabricaat') +
+    '\n  klein = ' + d.get('klein') +
+    '\n  (label leverancier: ' + (lev.options[lev.selectedIndex] || {textContent:''}).textContent + ')';
+});
+</script>
+</body>
+</html>
