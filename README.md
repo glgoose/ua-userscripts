@@ -1,36 +1,36 @@
 # ua-userscripts
 
-| script                                         | wat het doet                                                |                                                                                                                              |
-| ---------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| **[select-search](scripts/select-search)**     | zoekveld in dropdowns met veel opties (BIPP)                | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)     |
-| **[iexpense-search](scripts/iexpense-search)** | alle onkostenrapporten in één doorzoekbare tabel (iExpense) | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js) |
+| toepassing   | wat het doet                                     |                                                                                                                              |
+| ------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| **BIPP**     | zoekveld in dropdowns met veel opties            | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)     |
+| **iExpense** | alle onkostenrapporten in één doorzoekbare tabel | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js) |
 
-## Installatie instructies
+## Installatie-instructies
 
-**1. Tampermonkey installeren**
+Nodig voordat de installeren-links hierboven werken.
 
-| Firefox                                                               | Chrome                                                                                                | Edge                                                                                                           |
-| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| [installeren](https://addons.mozilla.org/firefox/addon/tampermonkey/) | [installeren](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) | [installeren](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd) |
+**1. Extensie installeren** voor
+[Firefox](https://addons.mozilla.org/firefox/addon/tampermonkey/),
+[Chrome](https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)
+of [Edge](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd).
 
-**2. Toestemming aanzetten** (Firefox niet nodig)
+**2. Gebruikersscripts toelaten** (Chrome en Edge, niet in Firefox)
 
-**Chrome (v138 en hoger)**
-
-1. Klik in de werkbalk op het puzzelstukje (*Extensions*, Extensies), rechts van de adresbalk.
-2. Zoek **Tampermonkey** in de lijst en klik op de drie puntjes ernaast.
+1. Klik in de werkbalk op het puzzelstukje, rechts van de adresbalk.
+2. Zoek **Tampermonkey** en klik op de drie puntjes ernaast.
 3. Kies **Manage Extension** (Extensie beheren).
-4. Zet onderaan **Allow User Scripts** (Gebruikersscripts toestaan) aan.
+4. Zet **Allow User Scripts** (Gebruikersscripts toestaan) aan.
 
-**Edge, en Chrome ouder dan v138**
+## Goed om te weten
 
-1. Ga naar `edge://extensions` of `chrome://extensions`.
-2. Zet **Developer mode** (Ontwikkelaarsmodus) aan, rechtsboven bij Edge, linksonder bij Chrome.
+**Je gebruikt meerdere toestellen (bijvoorbeeld een desktop en een laptop).** Ben je op
+allebei met hetzelfde browseraccount ingelogd, dan staat de extensie er via browsersync
+vaak al op en kan je stap 1 overslaan. Stap 2 reist niet mee, en de scripts uit de tabel
+evenmin: die doe je per toestel opnieuw.
 
-**3. Hierboven op *installeren* klikken.**
-
-Op elk toestel apart doen. Browsersync brengt de extensie wel mee naar je laptop, maar niet
-deze toestemming en niet je scripts.
+**Je ziet geen Allow User Scripts staan.** Dan is je browser oud: ga naar
+`chrome://extensions` of `edge://extensions` en zet **Developer mode**
+(Ontwikkelaarsmodus) aan.
 
 ## Licentie
 
