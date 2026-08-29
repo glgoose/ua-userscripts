@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Doorzoekbare dropdowns (select-search)
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.1.0
+// @version      1.2.0
 // @description  Geeft elke <select> met veel opties een zoekveld met substring-zoeken.
 // @author       glgoose
-// @license      MIT
+// @license      GPL-3.0-or-later
 // @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/select-search
 // @supportURL   https://github.com/glgoose/ua-userscripts/issues
 // @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js

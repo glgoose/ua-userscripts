@@ -5,7 +5,7 @@
 | **[select-search](scripts/select-search)**     | zoekveld in dropdowns met veel opties (BIPP)                | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)     |
 | **[iexpense-search](scripts/iexpense-search)** | alle onkostenrapporten in één doorzoekbare tabel (iExpense) | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js) |
 
-## Eerst dit, anders werkt de link niet
+## Installatie instructies
 
 **1. Tampermonkey installeren**
 
@@ -34,4 +34,5 @@ deze toestemming en niet je scripts.
 
 ## Licentie
 
-MIT
+[GPL-3.0-or-later](LICENSE). Gebruiken en aanpassen mag vrij. Verspreid je een
+aangepaste versie, dan moet de broncode daarvan mee, onder dezelfde licentie.

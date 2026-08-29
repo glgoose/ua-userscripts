@@ -51,3 +51,7 @@ python3 -m http.server 8731   # open http://localhost:8731/test/fixture.html
 
 Hoog bij elke wijziging `@version` op in `src/userscript-header.txt`, anders krijgt niemand de
 update binnen.
+
+## Licentie
+
+[GPL-3.0-or-later](../../LICENSE).

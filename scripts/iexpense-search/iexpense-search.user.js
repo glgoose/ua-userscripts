@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         iExpense zoekbalk
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.6.0
+// @version      1.7.0
 // @description  Vervangt "Update Expense Reports" op Expenses Home door dezelfde tabel met alle rijen tegelijk, doorzoekbaar en sorteerbaar zonder server round trips, in een scrollvenster van vaste hoogte zodat de pagina niet verspringt, en zet Notifications bovenaan met Track Submitted onderaan
 // @author       Glenn Goossens
-// @license      MIT
+// @license      GPL-3.0-or-later
 // @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/iexpense-search
 // @supportURL   https://github.com/glgoose/ua-userscripts/issues
 // @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js

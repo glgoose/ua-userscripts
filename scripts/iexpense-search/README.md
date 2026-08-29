@@ -39,3 +39,7 @@ niemand de update binnen.
 ```sh
 node --check iexpense-search.user.js
 ```
+
+## Licentie
+
+[GPL-3.0-or-later](../../LICENSE).
