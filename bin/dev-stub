@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+# Genereert een Tampermonkey dev-loader voor een script uit deze repo.
+# De stub bevat alleen metadata; de code komt via @require uit de repo-file,
+# die daarmee de enige bron van waarheid blijft.
+#
+# Gebruik: bin/dev-stub <scriptmap> [--no-copy]
+#   bin/dev-stub bipp-budgetcode
+#   bin/dev-stub scripts/select-search --no-copy
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Gebruik: bin/dev-stub <scriptmap> [opties]
+
+  <scriptmap>        naam onder scripts/, of een pad naar de map
+
+Opties:
+  --no-copy, -n      niet naar het klembord, alleen naar stdout
+  --list,    -l      toon de beschikbare scriptmappen
+  --help,    -h      deze uitleg
+USAGE
+}
+
+here="$(cd "$(dirname "$0")/.." && pwd)"
+copy=1
+target=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --no-copy|-n) copy=0 ;;
+    --list|-l)
+      for d in "$here"/scripts/*/; do
+        [ -d "$d" ] && basename "$d"
+      done
+      exit 0
+      ;;
+    --help|-h) usage; exit 0 ;;
+    -*) echo "dev-stub: onbekende optie: $1" >&2; usage >&2; exit 2 ;;
+    *)
+      if [ -n "$target" ]; then
+        echo "dev-stub: geef één scriptmap op" >&2
+        exit 2
+      fi
+      target="$1"
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$target" ]; then
+  echo "dev-stub: geen scriptmap opgegeven" >&2
+  usage >&2
+  exit 2
+fi
+
+dir="$target"
+[ -d "$dir" ] || dir="$here/scripts/$(basename "$target")"
+if [ ! -d "$dir" ]; then
+  echo "dev-stub: map niet gevonden: $target (zie --list)" >&2
+  exit 1
+fi
+dir="$(cd "$dir" && pwd)"
+
+src=""
+for f in "$dir"/*.user.js; do
+  [ -f "$f" ] && src="$f" && break
+done
+if [ -z "$src" ]; then
+  echo "dev-stub: geen *.user.js in $dir" >&2
+  echo "dev-stub: bij een script met een build: draai eerst ./build.sh" >&2
+  exit 1
+fi
+
+# Eén metadataveld uit de kop van het echte script halen.
+meta() {
+  sed -n 's|^// @'"$1"'  *\(.*[^ ]\) *$|\1|p' "$src"
+}
+
+name="$(meta name | head -1)"
+version="$(meta version | head -1)"
+namespace="$(meta namespace | head -1)"
+author="$(meta author | head -1)"
+
+if [ -z "$name" ] || [ -z "$version" ]; then
+  echo "dev-stub: @name of @version ontbreekt in $src" >&2
+  exit 1
+fi
+
+# @downloadURL en @updateURL komen er bewust NIET in: Tampermonkey zou de stub
+# dan bij de eerste update-check overschrijven met de volledige raw-versie.
+{
+  echo "// ==UserScript=="
+  printf '// @name         %s\n' "$name"
+  [ -n "$namespace" ] && printf '// @namespace    %s\n' "$namespace"
+  printf '// @version      %s-dev\n' "${version%-dev}"
+  printf '// @description  Dev-loader. De code staat in de repo, dit bestand wijst er alleen naar.\n'
+  [ -n "$author" ] && printf '// @author       %s\n' "$author"
+  for key in match include exclude; do
+    meta "$key" | while IFS= read -r value; do
+      [ -n "$value" ] && printf '// @%-12s %s\n' "$key" "$value"
+    done
+  done
+  # Bestaande externe @require en @resource eerst, want de code eronder rekent erop.
+  meta require | while IFS= read -r value; do
+    case "$value" in
+      file://*) ;;
+      "") ;;
+      *) printf '// @%-12s %s\n' require "$value" ;;
+    esac
+  done
+  meta resource | while IFS= read -r value; do
+    [ -n "$value" ] && printf '// @%-12s %s\n' resource "$value"
+  done
+  printf '// @%-12s file://%s\n' require "$src"
+  for key in grant connect run-at noframes; do
+    meta "$key" | while IFS= read -r value; do
+      [ -n "$value" ] && printf '// @%-12s %s\n' "$key" "$value"
+    done
+  done
+  echo "// ==/UserScript=="
+} > "$dir/.dev-stub.tmp"
+
+cat "$dir/.dev-stub.tmp"
+if [ "$copy" -eq 1 ] && command -v pbcopy >/dev/null 2>&1; then
+  pbcopy < "$dir/.dev-stub.tmp"
+  echo >&2
+  echo "dev-stub: staat op het klembord" >&2
+fi
+rm -f "$dir/.dev-stub.tmp"
