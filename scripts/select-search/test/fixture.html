@@ -20,7 +20,9 @@
     <tr><td><label for="lev">Leverancier</label></td>
         <td><select id="lev" name="leverancier"></select></td></tr>
     <tr><td><label for="fab">Fabricaat</label></td>
-        <td><select id="fab" name="fabricaat"></select></td></tr>
+        <td><select id="fab" name="fabricaat" data-placeholder="fabricaat"></select></td></tr>
+    <tr><td><label for="groep">Met groepen</label></td>
+        <td><select id="groep" name="groep"></select></td></tr>
     <tr><td><label for="klein">Klein menu</label></td>
         <td><select id="klein" name="klein">
           <option value="">--</option><option>Ja</option><option>Nee</option>
@@ -64,6 +66,44 @@ function vul(sel, n, offset){
   sel.value = huidig;
 }
 
+// Select met optgroups: recent bovenaan, daarna de rest, plus een optie zonder groep die
+// bovenaan los blijft staan. Labels lang genoeg om af te kappen.
+function vulGroepen(sel){
+  sel.innerHTML = '';
+  var leeg = document.createElement('option');
+  leeg.value = ''; leeg.textContent = 'leverancier';
+  sel.appendChild(leeg);
+  var blokken = [
+    ['recent', maak(3, 300)],
+    ['alle leveranciers', maak(60, 700)]
+  ];
+  blokken.forEach(function(blok){
+    var g = document.createElement('optgroup');
+    g.label = blok[0];
+    // Alleen recent mag met Delete uitgedund worden. Zo is de vlag hier ook echt getest.
+    if (blok[0] === 'recent') g.dataset.removable = '1';
+    blok[1].forEach(function(o){
+      var e = document.createElement('option');
+      e.value = o.v; e.textContent = o.t;
+      g.appendChild(e);
+    });
+    sel.appendChild(g);
+  });
+}
+vulGroepen(document.getElementById('groep'));
+
+// De host beslist wat verwijderen betekent. Hier: de optie gaat uit recent en verhuist naar de
+// tweede groep, net als het echte script met zijn recente budgetcodes doet.
+document.getElementById('groep').addEventListener('select-search:remove', function(e){
+  var sel = e.currentTarget;
+  var weg = sel.options[e.detail.index];
+  if (!weg) return;
+  var doel = sel.querySelectorAll('optgroup')[1];
+  var gekozen = sel.value;
+  doel.insertBefore(weg, doel.firstChild);
+  sel.value = gekozen;
+});
+
 var lev = document.getElementById('lev'), fab = document.getElementById('fab');
 function herlaad(){
   var inclusief = document.getElementById('incl').checked;
@@ -83,6 +123,7 @@ document.getElementById('f').addEventListener('submit', function(e){
   document.getElementById('uit').textContent =
     'verzonden:\n  leverancier = ' + d.get('leverancier') +
     '\n  fabricaat = ' + d.get('fabricaat') +
+    '\n  groep = ' + d.get('groep') +
     '\n  klein = ' + d.get('klein') +
     '\n  (label leverancier: ' + (lev.options[lev.selectedIndex] || {textContent:''}).textContent + ')';
 });

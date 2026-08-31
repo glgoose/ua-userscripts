@@ -89,22 +89,32 @@
     'background:#fff;color:#000;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;',
     'height:100%;min-height:22px}',
     'input:focus{outline:none;border-color:#0b57d0;box-shadow:0 0 0 1px #0b57d0}',
+    // #767676 haalt net de AA-drempel op wit; het #777 van li.kop zit er net onder.
+    'input::placeholder{color:#767676;opacity:1}',
     '.caret{position:absolute;right:6px;top:50%;transform:translateY(-50%);pointer-events:none;',
     'border:4px solid transparent;border-top-color:#444;margin-top:2px}',
+    // Het kruisje neemt de plek van het pijltje in en krijgt dus geen eigen ruimte. Zo blijft de
+    // volle breedte voor de tekst, staat er nooit een leeg gat, en verschuift er evenmin iets:
+    // enkel de zichtbaarheid van de twee wisselt. Zo doet Ant Design het ook.
+    '.wis{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:17px;height:17px;',
+    'display:flex;align-items:center;justify-content:center;color:#767676;cursor:pointer;',
+    'visibility:hidden}',
+    '.box.wisbaar.gevuld:hover .wis,.box.wisbaar.gevuld:focus-within .wis{visibility:visible}',
+    '.box.wisbaar.gevuld:hover .caret,.box.wisbaar.gevuld:focus-within .caret{visibility:hidden}',
+    '.wis:hover{color:#000}',
     'ul{position:fixed;z-index:2147483647;margin:0;padding:2px 0;list-style:none;overflow-y:auto;',
     'background:#fff;color:#000;border:1px solid #b0b0b0;border-radius:3px;',
     'box-shadow:0 4px 14px rgba(0,0,0,.22);',
     'font:13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:none}',
     'ul.open{display:block}',
     'li{padding:3px 8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    'li.kop{padding:6px 8px 2px;color:#777;font-size:11px;font-weight:600;cursor:default}',
     'li.active{background:#0b57d0;color:#fff}',
     'li.active mark{background:#ffe08a;color:#000}',
     'li.dis{color:#999;cursor:default}',
     'li.note{color:#666;cursor:default;font-style:italic;padding-top:5px}',
     'li.empty{color:#666;cursor:default}',
-    'mark{background:#ffe08a;color:inherit;padding:0}',
-    '.grp{color:#777;font-size:11px;margin-left:6px}',
-    'li.active .grp{color:#dbe6fb}'
+    'mark{background:#ffe08a;color:inherit;padding:0}'
   ].join('');
 
   /* ------------------------------------------------------------- enhance */
@@ -137,10 +147,21 @@
     input.title = 'Typ om te zoeken. Alt+klik zet het originele keuzemenu terug.';
     var caret = doc.createElement('span');
     caret.className = 'caret';
+    // Wissen gebeurt met een kruisje in het veld, zoals in react-select, MUI en Ant Design, en
+    // niet met een "geen waarde"-rij bovenaan de lijst. Ant Design toont het kruisje pas bij
+    // hover, dat doen wij ook, met focus erbij zodat het toetsenbord niet in de kou staat.
+    var wis = doc.createElement('span');
+    wis.className = 'wis';
+    wis.setAttribute('role', 'button');
+    wis.setAttribute('aria-label', 'Wissen');
+    wis.innerHTML = '<svg width="11" height="11" viewBox="0 0 12 12" fill="none" '
+      + 'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">'
+      + '<path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg>';
     var list = doc.createElement('ul');
     list.id = id + '-list';
     list.setAttribute('role', 'listbox');
     box.appendChild(input);
+    box.appendChild(wis);
     box.appendChild(caret);
     root.appendChild(style);
     root.appendChild(box);
@@ -156,32 +177,84 @@
     select.dataset.ssEnhanced = '1';
 
     var items = [], shown = [], active = -1, open = false;
+    // De zoekterm apart bijhouden. input.value is niet hetzelfde: bij een open lijst zonder
+    // dat er getypt is staat daar het gekozen label in (geselecteerd, klaar om over te typen),
+    // terwijl de lijst volledig is. Wie input.value als zoekterm leest, denkt dus dat er
+    // gefilterd wordt op iets wat de gebruiker nooit intypte.
+    var zoek = '';
+    // Index van de optie met een lege waarde, de "niets gekozen"-stand. Die optie is geen keuze:
+    // hij komt niet in de lijst, maar levert de placeholder en is het doel van het kruisje.
+    var leegIndex = -1, leegLabel = '';
 
     function readOptions() {
       items = [];
+      leegIndex = -1;
+      leegLabel = '';
+      // De volgorde van de optgroups bepaalt de volgorde van de blokken in de lijst, ook na
+      // filteren. Opties zonder groep houden gi 0 en blijven dus vooraan.
+      var groepen = [], gi;
       for (var i = 0; i < select.options.length; i++) {
         var o = select.options[i];
         var label = (o.textContent || '').replace(/\s+/g, ' ').trim();
-        var grp = o.parentNode && o.parentNode.tagName === 'OPTGROUP'
-          ? (o.parentNode.label || '') : '';
+        if (!o.value) {
+          if (leegIndex === -1) { leegIndex = i; leegLabel = label; }
+          continue;
+        }
+        var groep = o.parentNode && o.parentNode.tagName === 'OPTGROUP' ? o.parentNode : null;
+        var grp = groep ? (groep.label || '') : '';
+        if (!grp) gi = 0;
+        else {
+          gi = groepen.indexOf(grp);
+          if (gi === -1) { groepen.push(grp); gi = groepen.length; } else gi += 1;
+        }
         items.push({
           index: i,
           label: label,
           group: grp,
+          gi: gi,
           disabled: o.disabled,
-          norm: normMap(grp ? label + ' ' + grp : label)
+          // Wie de opties levert bepaalt of een regel weg mag, met data-removable op de optie of
+          // op haar optgroup. Het script weet niet wat verwijderen betekent en doet het dus ook
+          // niet zelf: het meldt enkel dat de gebruiker erom vraagt.
+          removable: !!(o.dataset.removable || (groep && groep.dataset.removable)),
+          // Enkel het label is doorzoekbaar: de groepsnaam staat als kopregel op het scherm en
+          // hoort niet stilzwijgend mee te zoeken. highlight() mapt de treffers bovendien terug
+          // op label, dus een treffer in de groepsnaam zou buiten het label vallen.
+          norm: normMap(label)
         });
       }
     }
 
     function currentLabel() {
       var o = select.options[select.selectedIndex];
-      return o ? (o.textContent || '').replace(/\s+/g, ' ').trim() : '';
+      // Staat de lege optie aan, dan is het veld leeg en neemt de placeholder het over. Anders
+      // zou "budgetcode" er als gewone zwarte waarde staan, alsof er wel iets gekozen is.
+      if (!o || !o.value) return '';
+      return (o.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    // Het kruisje hoort alleen te bestaan waar wissen ook kan, en alleen zichtbaar te zijn als er
+    // iets te wissen valt. De hover- en focusvoorwaarde staat in de CSS.
+    function updateWis() {
+      box.classList.toggle('wisbaar', leegIndex !== -1);
+      box.classList.toggle('gevuld', !!currentLabel());
     }
 
     function syncFromSelect() {
       readOptions();
+      input.placeholder = select.getAttribute('data-placeholder') || leegLabel;
+      updateWis();
       if (!open) input.value = currentLabel();
+    }
+
+    function clear() {
+      if (leegIndex === -1) return;
+      select.selectedIndex = leegIndex;
+      input.value = '';
+      updateWis();
+      closeList(false);
+      fire(select, 'input');
+      fire(select, 'change');
     }
 
     function position() {
@@ -205,32 +278,49 @@
     function filter(q) {
       var tokens = tokenize(q);
       if (!tokens.length) return items.slice();
-      var starts = [], rest = [];
+      // Per groep twee emmers: eerst wat met de zoekterm begint, dan de rest. De emmers worden
+      // in groepsvolgorde aan elkaar geplakt, zodat elke groep aaneengesloten blijft en de
+      // kopregel zich niet herhaalt.
+      var emmers = [];
       for (var i = 0; i < items.length; i++) {
-        var n = items[i].norm.n, ok = true;
+        var it = items[i], n = it.norm.n, ok = true;
         for (var t = 0; t < tokens.length; t++) {
           if (n.indexOf(tokens[t]) === -1) { ok = false; break; }
         }
         if (!ok) continue;
-        (n.indexOf(tokens[0]) === 0 ? starts : rest).push(items[i]);
+        if (!emmers[it.gi]) emmers[it.gi] = { starts: [], rest: [] };
+        (n.indexOf(tokens[0]) === 0 ? emmers[it.gi].starts : emmers[it.gi].rest).push(it);
       }
-      return starts.concat(rest);
+      var out = [];
+      for (var g = 0; g < emmers.length; g++) {
+        if (emmers[g]) out = out.concat(emmers[g].starts, emmers[g].rest);
+      }
+      return out;
     }
 
-    function render(q) {
+    // behoud: houd de blauwe balk waar hij stond. Enkel voor een herbouw van de optielijst onder
+    // een open lijst, want dan is de gebruiker midden in iets en zou terugspringen naar de eerste
+    // regel hem onderbreken. Bij openen en typen hoort de balk juist wel bovenaan te beginnen.
+    function render(q, behoud) {
+      var vorigeActieve = active;
+      zoek = q || '';
       var tokens = tokenize(q);
       shown = filter(q);
       var html = '';
       if (!shown.length) {
         html = '<li class="empty">Geen resultaten</li>';
       } else {
-        var n = Math.min(shown.length, MAX_RENDER);
+        var n = Math.min(shown.length, MAX_RENDER), vorige = null;
         for (var i = 0; i < n; i++) {
           var it = shown[i];
+          if (it.group && it.group !== vorige) {
+            html += '<li class="kop">' + escapeHtml(it.group) + '</li>';
+          }
+          vorige = it.group;
           html += '<li role="option" id="' + id + '-o' + i + '" data-i="' + i + '"'
+            + (it.removable ? ' data-rm="1"' : '')
             + (it.disabled ? ' class="dis" aria-disabled="true"' : '') + '>'
             + highlight(it, tokens)
-            + (it.group ? '<span class="grp">' + escapeHtml(it.group) + '</span>' : '')
             + '</li>';
         }
         if (shown.length > n) {
@@ -239,7 +329,9 @@
       }
       list.innerHTML = html;
       shown = shown.slice(0, MAX_RENDER);
-      setActive(shown.length ? 0 : -1, false);
+      var doel = 0;
+      if (behoud && vorigeActieve > 0) doel = Math.min(vorigeActieve, shown.length - 1);
+      setActive(shown.length ? doel : -1, false);
     }
 
     function setActive(i, scroll) {
@@ -285,9 +377,25 @@
       if (!it || it.disabled) return;
       select.selectedIndex = it.index;
       input.value = it.label;
+      updateWis();
       closeList(false);
       fire(select, 'input');
       fire(select, 'change');
+    }
+
+    // Het script haalt zelf niets weg. Het meldt enkel dat de gebruiker deze regel kwijt wil, en
+    // wie de opties leverde beslist wat dat betekent en past de <select> aan. Luistert er niemand,
+    // dan gebeurt er niets, en dat is geen fout.
+    function fireRemove(it) {
+      var ev;
+      var detail = { value: select.options[it.index].value, label: it.label, index: it.index };
+      try {
+        ev = new CustomEvent('select-search:remove', { bubbles: true, cancelable: true, detail: detail });
+      } catch (e) {
+        ev = doc.createEvent('CustomEvent');
+        ev.initCustomEvent('select-search:remove', true, true, detail);
+      }
+      select.dispatchEvent(ev);
     }
 
     function fire(el, type) {
@@ -331,6 +439,13 @@
       }
       if (!open) { e.preventDefault(); input.focus(); openList(''); input.select(); }
     });
+    // mousedown in plaats van click, met preventDefault: zo houdt het invoerveld zijn focus en
+    // blijft het kruisje zichtbaar terwijl je klikt. stopPropagation houdt de lijst dicht.
+    wis.addEventListener('mousedown', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      clear();
+    });
     input.addEventListener('focus', function () { if (!open) openList(''); });
     input.addEventListener('input', function () { if (open) render(input.value); else openList(input.value); });
     input.addEventListener('blur', function () {
@@ -362,7 +477,33 @@
         case 'Escape':
           if (open) { e.preventDefault(); e.stopPropagation(); closeList(true); }
           break;
+        // Backspace op een leeg invoerveld wist de keuze, zoals in react-select. Staat er nog
+        // tekst, dan doet Backspace gewoon wat je verwacht en blijft de keuze staan.
+        case 'Backspace':
+          if (!input.value && leegIndex !== -1 && currentLabel()) { e.preventDefault(); clear(); }
+          break;
+        // Delete haalt de actieve regel uit haar lijst, zoals de adresbalk van een browser dat met
+        // een suggestie doet. Alleen zolang er niets getypt is: filtert de gebruiker, dan blijft
+        // Delete de gewone teksttoets en gebeurt er niets met de lijst.
+        case 'Delete':
+          if (!open || zoek || active < 0) break;
+          var doelwit = shown[active];
+          if (!doelwit || !doelwit.removable) break;
+          e.preventDefault();
+          fireRemove(doelwit);
+          break;
       }
+    });
+    // De muis verzet dezelfde balk als de pijltjes: één begrip van "waar sta ik", zodat Enter en
+    // Delete altijd op de regel slaan die oplicht. mousemove en niet mouseover, want een muis die
+    // toevallig boven de lijst ligt mag de pijltjes niet blijven overrulen.
+    list.addEventListener('mousemove', function (e) {
+      var li = e.target;
+      while (li && li.tagName !== 'LI') li = li.parentNode;
+      if (!li || !li.hasAttribute('data-i')) return;
+      var i = parseInt(li.getAttribute('data-i'), 10);
+      // Geen scroll: de regel ligt per definitie al onder de cursor en dus in beeld.
+      if (i !== active) setActive(i, false);
     });
     list.addEventListener('mousedown', function (e) { e.preventDefault(); });
     list.addEventListener('click', function (e) {
@@ -371,14 +512,16 @@
       if (li && li.hasAttribute('data-i')) choose(parseInt(li.getAttribute('data-i'), 10));
     });
 
-    function onSelectChange() { if (!open) input.value = currentLabel(); }
+    function onSelectChange() {
+      updateWis();
+      if (!open) input.value = currentLabel();
+    }
     select.addEventListener('change', onSelectChange);
 
     // De app vervangt de optielijst (bv. "Inclusief niet-raamcontractartikelen").
     var resync = debounce(function () {
-      var q = open ? input.value : null;
       syncFromSelect();
-      if (open) render(q);
+      if (open) render(zoek, true);
     }, 50);
     var obs = new MutationObserver(resync);
     obs.observe(select, { childList: true, subtree: true });

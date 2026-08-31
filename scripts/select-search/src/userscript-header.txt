@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Doorzoekbare dropdowns (select-search)
+// @name         BIPP: doorzoekbare dropdowns
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.2.0
+// @version      1.5.0
 // @description  Geeft elke <select> met veel opties een zoekveld met substring-zoeken.
 // @author       glgoose
 // @license      GPL-3.0-or-later
