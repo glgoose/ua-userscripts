@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         iExpense zoekbalk
+// @name         iExpense: doorzoekbare rapportentabel
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.7.0
+// @version      1.7.1
 // @description  Vervangt "Update Expense Reports" op Expenses Home door dezelfde tabel met alle rijen tegelijk, doorzoekbaar en sorteerbaar zonder server round trips, in een scrollvenster van vaste hoogte zodat de pagina niet verspringt, en zet Notifications bovenaan met Track Submitted onderaan
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later

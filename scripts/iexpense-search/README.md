@@ -36,6 +36,9 @@ Expense Reports, en Track Submitted onderaan.
 Eén bestand, geen build, geen dependencies. Hoog `@version` op bij elke wijziging, anders krijgt
 niemand de update binnen.
 
+Tijdens het ontwikkelen laad je het script via een dev-stub in plaats van een geplakte kopie,
+zie [Ontwikkelen](../../README.md#ontwikkelen).
+
 ```sh
 node --check iexpense-search.user.js
 ```
