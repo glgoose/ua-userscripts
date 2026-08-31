@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BIPP: doorzoekbare dropdowns
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.5.0
+// @version      1.6.0
 // @description  Geeft elke <select> met veel opties een zoekveld met substring-zoeken.
 // @author       glgoose
 // @license      GPL-3.0-or-later
@@ -34,6 +34,12 @@
   var MIN_OPTIONS = 10;
   var MAX_RENDER = 200;
   var uid = 0;
+  // Recent gebruikte waarden per veld. Vijf, want select-search filtert het blok mee tijdens het
+  // zoeken: wat buiten de top vijf valt typ je sneller dan je het herkent. Geen vervaltermijn,
+  // een lijst van vijf verdringt zichzelf al.
+  var RECENT_KEY = 'selectSearchRecent';
+  var RECENT_MAX = 5;
+  var RECENT_FIELDS = 40;
 
   /* ---------------------------------------------------------------- utils */
 
@@ -62,6 +68,78 @@
       if (t) clearTimeout(t);
       t = setTimeout(function () { t = null; fn(); }, ms);
     };
+  }
+
+  /* --------------------------------------------------------------- recent */
+
+  // Eén localStorage-sleutel voor alle velden samen:
+  //   { v: 1, fields: { "<sleutel>": { ts: <ms>, items: [[value, label], ...] } } }
+  // ts dient enkel om het oudste veld te laten vallen zodra er meer dan RECENT_FIELDS in staan,
+  // zodat de sleutel niet onbeperkt groeit. Lezen en schrijven falen stil: recent is comfort,
+  // geen data, en een volle quota mag de dropdown niet stukmaken.
+
+  function readStore() {
+    var raw;
+    try { raw = localStorage.getItem(RECENT_KEY); } catch (e) { return null; }
+    if (!raw) return null;
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return null; }
+    if (!data || data.v !== 1 || !data.fields || typeof data.fields !== 'object') return null;
+    return data;
+  }
+
+  function writeStore(data) {
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(data)); } catch (e) { /* quota, stil */ }
+  }
+
+  function readRecent(sleutel) {
+    var data = readStore();
+    if (!data || !Object.prototype.hasOwnProperty.call(data.fields, sleutel)) return [];
+    var veld = data.fields[sleutel];
+    return veld && veld.items && veld.items.length ? veld.items : [];
+  }
+
+  function writeRecent(sleutel, lijst) {
+    var data = readStore() || { v: 1, fields: {} };
+    data.fields[sleutel] = { ts: Date.now(), items: lijst.slice(0, RECENT_MAX) };
+    var namen = Object.keys(data.fields);
+    if (namen.length > RECENT_FIELDS) {
+      namen.sort(function (a, b) { return (data.fields[a].ts || 0) - (data.fields[b].ts || 0); });
+      for (var i = 0; i < namen.length - RECENT_FIELDS; i++) delete data.fields[namen[i]];
+    }
+    writeStore(data);
+  }
+
+  function pushRecent(sleutel, value, label) {
+    // Zonder label wordt het een onleesbare regel bovenaan de lijst, en die kan de gebruiker
+    // niet herkennen en dus ook niet gericht wegdoen.
+    if (!sleutel || !value || !label) return;
+    var lijst = readRecent(sleutel).filter(function (e) { return e[0] !== value; });
+    lijst.unshift([value, label]);
+    writeRecent(sleutel, lijst);
+  }
+
+  // De lijst kon alleen groeien. Dit is de weg terug: de waarde verdwijnt uit recent en staat
+  // daarna weer gewoon tussen alle opties. Levert false op als er niets te wissen viel.
+  function dropRecent(sleutel, value) {
+    var lijst = readRecent(sleutel);
+    var uit = lijst.filter(function (e) { return e[0] !== value; });
+    if (uit.length === lijst.length) return false;
+    writeRecent(sleutel, uit);
+    return true;
+  }
+
+  // BIPP rendert ids als ctl00_..._resultTable_ctl03_interfaceAccountList. Rij 3 en rij 4 zijn
+  // hetzelfde veld en horen dus één lijst te delen: de rij- en volgnummers gaan eruit. Levert dat
+  // niets op, dan krijgt die select geen recent-blok en blijft hij gewoon doorzoekbaar.
+  function recentKey(select) {
+    var expliciet = select.getAttribute && select.getAttribute('data-ss-recent-key');
+    if (expliciet) return expliciet;
+    var ruw = select.name || select.id || '';
+    if (!ruw) return '';
+    return ruw.split(/[$_]/).filter(function (deel) {
+      return deel && !/^ctl\d+$/i.test(deel) && !/^\d+$/.test(deel);
+    }).join('_');
   }
 
   /* ------------------------------------------------------------ highlight */
@@ -139,6 +217,10 @@
     var doc = select.ownerDocument;
     var win = doc.defaultView || window;
     var id = 'ss' + (++uid);
+    var recentSleutel = recentKey(select);
+    // Manuele stand: het recent-blok en Delete werken, maar er wordt niets vanzelf onthouden.
+    // Voor wie pas na een bevestiging van de server mag opslaan; die roept remember() zelf aan.
+    var recentManueel = select.getAttribute('data-ss-recent') === 'manual';
 
     var rect = select.getBoundingClientRect();
     var wrap = doc.createElement('span');
@@ -206,24 +288,53 @@
       items = [];
       leegIndex = -1;
       leegLabel = '';
+      // Twee soorten "niets gekozen". Een optie zonder waarde is de echte, een optie met een
+      // waarde maar zonder leesbare tekst (OAF schrijft graag <option value="0">&nbsp;</option>)
+      // is de terugval. Beide horen buiten de lijst, want een regel die je niet kunt lezen is
+      // geen keuze, maar het kruisje mikt liefst op de eerste: die maakt het veld echt leeg.
+      var zonderWaarde = -1, zonderWaardeLabel = '', blanco = -1;
       // De volgorde van de optgroups bepaalt de volgorde van de blokken in de lijst, ook na
-      // filteren. Opties zonder groep houden gi 0 en blijven dus vooraan.
+      // filteren. gi 0 is het recent-blok, gi 1 zijn de opties zonder groep, echte groepen
+      // beginnen bij 2.
       var groepen = [], gi;
+      // Recent verwijst naar opties die al in de select staan; wat er niet meer in zit valt
+      // vanzelf weg. De positie in de bewaarde lijst is de positie in het blok.
+      var wil = {}, recentLijst = recentSleutel ? readRecent(recentSleutel) : [];
+      for (var r = 0; r < recentLijst.length; r++) wil['v:' + recentLijst[r][0]] = r;
+      var recentItems = [], gewoon = [];
       for (var i = 0; i < select.options.length; i++) {
         var o = select.options[i];
         var label = (o.textContent || '').replace(/\s+/g, ' ').trim();
-        if (!o.value) {
-          if (leegIndex === -1) { leegIndex = i; leegLabel = label; }
+        if (!o.value || !label) {
+          if (!o.value) {
+            if (zonderWaarde === -1) { zonderWaarde = i; zonderWaardeLabel = label; }
+          } else if (blanco === -1) blanco = i;
+          continue;
+        }
+        var plek = wil['v:' + o.value];
+        if (plek !== undefined && recentItems[plek] === undefined) {
+          recentItems[plek] = {
+            index: i,
+            label: label,
+            group: 'recent',
+            gi: 0,
+            disabled: o.disabled,
+            removable: true,
+            mru: true,
+            norm: normMap(label)
+          };
+          // Een optie die in recent staat wordt in haar eigen groep overgeslagen: twee keer
+          // dezelfde regel in de resultaten is verwarrend, ook met een kopregel erbij.
           continue;
         }
         var groep = o.parentNode && o.parentNode.tagName === 'OPTGROUP' ? o.parentNode : null;
         var grp = groep ? (groep.label || '') : '';
-        if (!grp) gi = 0;
+        if (!grp) gi = 1;
         else {
           gi = groepen.indexOf(grp);
-          if (gi === -1) { groepen.push(grp); gi = groepen.length; } else gi += 1;
+          if (gi === -1) { groepen.push(grp); gi = groepen.length + 1; } else gi += 2;
         }
-        items.push({
+        gewoon.push({
           index: i,
           label: label,
           group: grp,
@@ -239,6 +350,19 @@
           norm: normMap(label)
         });
       }
+      if (zonderWaarde !== -1) { leegIndex = zonderWaarde; leegLabel = zonderWaardeLabel; }
+      else if (blanco !== -1) leegIndex = blanco;
+      for (var k = 0; k < recentItems.length; k++) {
+        if (recentItems[k]) items.push(recentItems[k]);
+      }
+      // Zonder kopregel loopt het recent-blok naadloos over in de losse opties eronder, en dan
+      // zie je niet meer waar het ophoudt. Alleen nodig als er iets boven staat.
+      if (items.length) {
+        for (var g = 0; g < gewoon.length; g++) {
+          if (!gewoon[g].group) gewoon[g].group = 'alle';
+        }
+      }
+      items = items.concat(gewoon);
     }
 
     function currentLabel() {
@@ -395,6 +519,11 @@
       input.value = it.label;
       updateWis();
       closeList(false);
+      if (recentSleutel && !recentManueel) {
+        pushRecent(recentSleutel, select.options[it.index].value, it.label);
+        // Herbouwen, anders klopt het blok pas bij de volgende keer dat de opties veranderen.
+        readOptions();
+      }
       fire(select, 'input');
       fire(select, 'change');
     }
@@ -439,6 +568,7 @@
       if (prevStyle === null) select.removeAttribute('style');
       else select.setAttribute('style', prevStyle);
       delete select.dataset.ssEnhanced;
+      delete select.__selectSearchSync;
       select.dataset.nosearch = '1';
       if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
     }
@@ -506,6 +636,12 @@
           var doelwit = shown[active];
           if (!doelwit || !doelwit.removable) break;
           e.preventDefault();
+          if (doelwit.mru && recentSleutel
+              && dropRecent(recentSleutel, select.options[doelwit.index].value)) {
+            readOptions();
+            render(zoek, true);
+            break;
+          }
           fireRemove(doelwit);
           break;
       }
@@ -544,6 +680,12 @@
 
     wrap.__selectSearchDetach = detach;
     wrap.__selectSearchSelect = select;
+    // Haak voor remember(): de opties veranderen niet, alleen het recent-blok, dus de
+    // MutationObserver merkt er niets van.
+    select.__selectSearchSync = function () {
+      syncFromSelect();
+      if (open) render(zoek, true);
+    };
     syncFromSelect();
   }
 
@@ -591,6 +733,27 @@
 
   function scan() { for (var i = 0; i < attached.length; i++) scanDoc(attached[i]); attach(document); }
   window.__selectSearchScan = scan;
+
+  // Voor wie pas mag onthouden nadat de server bevestigd heeft, zie data-ss-recent="manual".
+  // Eerste argument mag de select zelf zijn of rechtstreeks de veldsleutel.
+  window.selectSearch = {
+    remember: function (selectOrKey, value, label) {
+      var sleutel = typeof selectOrKey === 'string' ? selectOrKey : recentKey(selectOrKey);
+      if (!sleutel || !value) return;
+      pushRecent(sleutel, value, label == null ? String(value) : String(label));
+      if (selectOrKey && typeof selectOrKey.__selectSearchSync === 'function') {
+        selectOrKey.__selectSearchSync();
+      }
+    },
+    forget: function (selectOrKey, value) {
+      var sleutel = typeof selectOrKey === 'string' ? selectOrKey : recentKey(selectOrKey);
+      if (!sleutel || !value) return;
+      dropRecent(sleutel, value);
+      if (selectOrKey && typeof selectOrKey.__selectSearchSync === 'function') {
+        selectOrKey.__selectSearchSync();
+      }
+    }
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { attach(document); });

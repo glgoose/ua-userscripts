@@ -23,6 +23,14 @@
         <td><select id="fab" name="fabricaat" data-placeholder="fabricaat"></select></td></tr>
     <tr><td><label for="groep">Met groepen</label></td>
         <td><select id="groep" name="groep"></select></td></tr>
+    <tr><td><label for="ctl00_body_resultTable_ctl03_interfaceAccountList">Grootboek rij 3</label></td>
+        <td><select id="ctl00_body_resultTable_ctl03_interfaceAccountList"
+                    name="ctl00$body$resultTable$ctl03$interfaceAccountList"></select></td></tr>
+    <tr><td><label for="ctl00_body_resultTable_ctl04_interfaceAccountList">Grootboek rij 4</label></td>
+        <td><select id="ctl00_body_resultTable_ctl04_interfaceAccountList"
+                    name="ctl00$body$resultTable$ctl04$interfaceAccountList"></select></td></tr>
+    <tr><td><label for="oaf">OAF-stijl</label></td>
+        <td><select id="oaf" name="oaf"></select></td></tr>
     <tr><td><label for="klein">Klein menu</label></td>
         <td><select id="klein" name="klein">
           <option value="">--</option><option>Ja</option><option>Nee</option>
@@ -74,14 +82,14 @@ function vulGroepen(sel){
   leeg.value = ''; leeg.textContent = 'leverancier';
   sel.appendChild(leeg);
   var blokken = [
-    ['recent', maak(3, 300)],
+    ['favorieten', maak(3, 300)],
     ['alle leveranciers', maak(60, 700)]
   ];
   blokken.forEach(function(blok){
     var g = document.createElement('optgroup');
     g.label = blok[0];
-    // Alleen recent mag met Delete uitgedund worden. Zo is de vlag hier ook echt getest.
-    if (blok[0] === 'recent') g.dataset.removable = '1';
+    // Alleen favorieten mag met Delete uitgedund worden. Zo is de vlag hier ook echt getest.
+    if (blok[0] === 'favorieten') g.dataset.removable = '1';
     blok[1].forEach(function(o){
       var e = document.createElement('option');
       e.value = o.v; e.textContent = o.t;
@@ -92,8 +100,25 @@ function vulGroepen(sel){
 }
 vulGroepen(document.getElementById('groep'));
 
-// De host beslist wat verwijderen betekent. Hier: de optie gaat uit recent en verhuist naar de
-// tweede groep, net als het echte script met zijn recente budgetcodes doet.
+// OAF schrijft zijn "niets gekozen" niet met een lege waarde maar met een spatie-optie die wel
+// een waarde draagt. Die regel hoort niet in de lijst te staan (je kunt ze niet lezen en dus ook
+// niet herkennen) en al helemaal niet in recent, maar het kruisje mag er wel op mikken.
+function vulOaf(sel){
+  sel.innerHTML = '';
+  var leeg = document.createElement('option');
+  leeg.value = '0'; leeg.innerHTML = '&nbsp;';
+  sel.appendChild(leeg);
+  maak(40, 500).forEach(function(o){
+    var e = document.createElement('option');
+    e.value = o.v; e.textContent = o.t;
+    sel.appendChild(e);
+  });
+}
+vulOaf(document.getElementById('oaf'));
+
+// De host beslist wat verwijderen betekent voor zijn eigen regels. Hier: de optie gaat uit
+// favorieten en verhuist naar de tweede groep. Het recent-blok erboven beheert select-search
+// zelf; Delete daarop komt hier dus niet langs.
 document.getElementById('groep').addEventListener('select-search:remove', function(e){
   var sel = e.currentTarget;
   var weg = sel.options[e.detail.index];
@@ -103,6 +128,11 @@ document.getElementById('groep').addEventListener('select-search:remove', functi
   doel.insertBefore(weg, doel.firstChild);
   sel.value = gekozen;
 });
+
+var rij3 = document.getElementById('ctl00_body_resultTable_ctl03_interfaceAccountList');
+var rij4 = document.getElementById('ctl00_body_resultTable_ctl04_interfaceAccountList');
+vul(rij3, 40, 200);
+vul(rij4, 40, 200);
 
 var lev = document.getElementById('lev'), fab = document.getElementById('fab');
 function herlaad(){

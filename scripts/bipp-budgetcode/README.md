@@ -17,8 +17,10 @@ gekozen waarde zit wel al in de pagina, maar alleen als tooltip op die link.
   staat.
 - Zoeken in die lijst van ruim vijfduizend codes gaat via
   [select-search](../select-search/README.md), dat op dezelfde pagina meeloopt.
-- Bovenaan de lijst staan onder *recent* de codes die je het laatst gebruikt hebt. Die
-  staan verderop niet nog een keer: elke code komt maar één keer in de lijst voor.
+- Bovenaan de lijst staan onder *recent* de vijf codes die je het laatst gebruikt hebt. Dat blok
+  komt van [select-search](../select-search/README.md#recent) en werkt intussen op elke grote
+  dropdown op BIPP, niet enkel op de budgetcode. Hier telt een code pas als de server ze
+  aanvaard heeft: mislukt het opslaan, dan blijft recent ongemoeid.
 - Is de grootboekrekening ook gekozen, dan komt de code in **Interne commentaar** te staan.
   Stond daar al iets, dan komt ze op een nieuwe regel eronder. Kies je daarna een andere code,
   dan wordt die regel vervangen in plaats van dat er een bijkomt.

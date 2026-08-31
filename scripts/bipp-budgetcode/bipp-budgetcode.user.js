@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BIPP: budgetcode in het winkelmandje
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.4.0
+// @version      1.5.0
 // @description  Zet de budgetcode als dropdown in de winkelmandjerij zelf, onder de grootboekrekening, zodat je niet meer via de aparte pagina Selectie analytische velden moet en de gekozen code ook gewoon ziet staan. Slaat op via een achtergrond-postback en vult de code aan in Interne commentaar.
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later
@@ -30,9 +30,7 @@
 
   var SELECTOR_URL = 'AnalyticalFieldSelector.aspx';
   var CACHE_KEY = 'bippBudgetcodeOptions';
-  var MRU_KEY = 'bippBudgetcodeRecent';
   var TTL_MS = 7 * 24 * 60 * 60 * 1000;
-  var MRU_MAX = 8;
   var EMPTY_LABEL = 'budgetcode';
 
   // ---------- kleine hulpjes ----------
@@ -115,24 +113,6 @@
       });
     loading['catch'](function () { loading = null; });
     return loading;
-  }
-
-  // ---------- recent gebruikte codes ----------
-
-  function readMru() {
-    try { return JSON.parse(localStorage.getItem(MRU_KEY)) || []; } catch (e) { return []; }
-  }
-  function pushMru(value, label) {
-    if (!value) return;
-    var list = readMru().filter(function (e) { return e[0] !== value; });
-    list.unshift([value, label]);
-    try { localStorage.setItem(MRU_KEY, JSON.stringify(list.slice(0, MRU_MAX))); } catch (e) { /* stil */ }
-  }
-  // De lijst kon alleen groeien. Dit is de weg terug: de code verdwijnt uit recent en staat
-  // daarna weer gewoon tussen alle budgetcodes.
-  function removeMru(value) {
-    var list = readMru().filter(function (e) { return e[0] !== value; });
-    try { localStorage.setItem(MRU_KEY, JSON.stringify(list)); } catch (e) { /* stil */ }
   }
 
   // ---------- formulier posten ----------
@@ -401,27 +381,12 @@
     // dubbel in. De select zelf blijft dezelfde node, dus dit verschuift niets.
     while (select.children.length > 1) select.removeChild(select.lastChild);
 
-    var mru = readMru();
-    var inRecent = {};
-    if (mru.length) {
-      var recent = document.createElement('optgroup');
-      recent.label = 'recent';
-      // Hiermee weet select-search dat deze regels weg mogen met Delete. Alle budgetcodes krijgt
-      // die vlag niet, daar valt niets te verwijderen.
-      recent.dataset.removable = '1';
-      mru.forEach(function (e) {
-        inRecent[e[0]] = true;
-        recent.appendChild(new Option(e[1], e[0]));
-      });
-      select.appendChild(recent);
-    }
-
+    // Het recent-blok komt van select-search, dat het bovenaan de lijst zet en de dubbels er
+    // hier uit haalt. Wij leveren enkel de volledige lijst.
     var all = document.createElement('optgroup');
     all.label = 'alle budgetcodes';
     data.options.forEach(function (e) {
-      // Wat al onder recent staat komt hier niet nog eens: twee keer dezelfde regel in de
-      // zoekresultaten is verwarrend, ook al staat er een groepslabel bij.
-      if (e[0] && !inRecent[e[0]]) all.appendChild(new Option(e[1], e[0]));
+      if (e[0]) all.appendChild(new Option(e[1], e[0]));
     });
     select.appendChild(all);
 
@@ -437,7 +402,11 @@
 
     var select = document.createElement('select');
     select.className = 'TextBox';
-    // Geen name-attribuut: dan serialiseert FormData ons veld niet mee.
+    // Geen name-attribuut: dan serialiseert FormData ons veld niet mee. select-search leidt zijn
+    // veldsleutel normaal uit name of id af, dus die krijgt hij hier expliciet mee. Manueel, want
+    // een code hoort pas in recent te staan als de server ze aanvaard heeft, zie onPick.
+    select.dataset.ssRecent = 'manual';
+    select.dataset.ssRecentKey = 'budgetcode';
     select.appendChild(new Option(EMPTY_LABEL, ''));
 
     var code = currentCode(row);
@@ -498,7 +467,9 @@
         row.pending = null;
         // De guard kan de zichtbare waarde ondertussen teruggezet hebben.
         setValue(row, code);
-        if (code) pushMru(code, label);
+        if (code && window.selectSearch && window.selectSearch.remember) {
+          window.selectSearch.remember(select, code, label);
+        }
         // Geen vinkje. De zandloper verdwijnt en de dropdowntekst wordt weer zwart, en dat is
         // de bevestiging al. Een tick die een seconde later toch weer weggaat voegt niets toe
         // en vraagt aandacht voor iets wat al gelukt is.
@@ -543,14 +514,6 @@
           return;
         }
         fillOptions(u.select, data, row.savedCode);
-        // select-search meldt dat een regel uit recent weg mag, wij weten pas wat dat betekent.
-        // Opnieuw opbouwen zet de code vanzelf terug onder alle budgetcodes. Er wordt niets
-        // opgeslagen: fillOptions vuurt geen change, dus onPick en de POST-keten blijven erbuiten.
-        u.select.addEventListener('select-search:remove', function (e) {
-          if (!e.detail || !e.detail.value) return;
-          removeMru(e.detail.value);
-          fillOptions(u.select, data, u.select.value);
-        });
         if (typeof window.__selectSearchScan === 'function') window.__selectSearchScan();
       });
     })['catch'](function (err) {
