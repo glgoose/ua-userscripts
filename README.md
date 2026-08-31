@@ -2,7 +2,7 @@
 
 | toepassing   | wat het doet                                     |                                                                                                                              |
 | ------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| **BIPP**     | budgetcode kiezen en zien in het | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js) |
+| **BIPP**     | budgetcode kiezen en zien in het winkelmandje    | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js) |
 | **BIPP**     | zoekveld in dropdowns met veel opties            | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)     |
 | **iExpense** | alle onkostenrapporten in één doorzoekbare tabel | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js) |
 
