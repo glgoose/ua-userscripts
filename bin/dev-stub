@@ -80,14 +80,19 @@ name="$(meta name | head -1)"
 version="$(meta version | head -1)"
 namespace="$(meta namespace | head -1)"
 author="$(meta author | head -1)"
+downloadurl="$(meta downloadURL | head -1)"
 
 if [ -z "$name" ] || [ -z "$version" ]; then
   echo "dev-stub: @name of @version ontbreekt in $src" >&2
   exit 1
 fi
 
-# @downloadURL en @updateURL komen er bewust NIET in: Tampermonkey zou de stub
-# dan bij de eerste update-check overschrijven met de volledige raw-versie.
+# @updateURL staat op none, want weglaten volstaat niet: Tampermonkey onthoudt de
+# download-URL van de oorspronkelijke installatie los van het meta-blok, en zou de
+# stub daarmee bij de eerste update-check overschrijven met de volledige raw-versie.
+# In determineMetaURL gaat updateURL vóór die onthouden downloadURL en breekt de
+# waarde none de check af. @downloadURL mag daardoor blijven staan: die wordt nooit
+# meer bereikt en levert wel de GitHub-herkomst op in de overzichtslijst.
 {
   echo "// ==UserScript=="
   printf '// @name         %s\n' "$name"
@@ -95,6 +100,8 @@ fi
   printf '// @version      %s-dev\n' "${version%-dev}"
   printf '// @description  Dev-loader. De code staat in de repo, dit bestand wijst er alleen naar.\n'
   [ -n "$author" ] && printf '// @author       %s\n' "$author"
+  [ -n "$downloadurl" ] && printf '// @%-12s %s\n' downloadURL "$downloadurl"
+  printf '// @%-12s %s\n' updateURL none
   for key in match include exclude; do
     meta "$key" | while IFS= read -r value; do
       [ -n "$value" ] && printf '// @%-12s %s\n' "$key" "$value"
@@ -126,4 +133,6 @@ if [ "$copy" -eq 1 ] && command -v pbcopy >/dev/null 2>&1; then
   echo >&2
   echo "dev-stub: staat op het klembord" >&2
 fi
+echo "dev-stub: genereer de stub opnieuw na elke @version-bump, anders wijst de" >&2
+echo "dev-stub: Version-kolom in het dashboard een oude versie aan" >&2
 rm -f "$dir/.dev-stub.tmp"

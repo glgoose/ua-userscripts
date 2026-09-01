@@ -59,13 +59,27 @@ bijgewerkte, want Tampermonkey herkent een script aan `@namespace` plus `@name`.
 
 `bin/dev-stub --list` toont de scriptmappen, `--no-copy` slaat het klembord over.
 
-Twee dingen die aan die stub vasthangen:
+Drie dingen die aan die stub vasthangen:
 
 - **De metadata komt uit de stub, niet uit de required file.** `@match`, `@grant` en `@run-at`
   moeten er dus in staan; het `==UserScript==`-blok van de file zelf wordt genegeerd. `dev-stub`
   neemt die velden over uit het echte script, zodat de twee niet uit elkaar lopen.
-- **`@downloadURL` en `@updateURL` horen er niet in.** Met die velden overschrijft Tampermonkey
-  je stub bij de eerste update-check met de volledige raw-versie. `dev-stub` laat ze weg.
+- **`@updateURL` staat op `none`.** Die velden weglaten volstaat niet: Tampermonkey onthoudt de
+  download-URL van de oorspronkelijke installatie apart van het meta-blok, dus een rij die ooit
+  van de raw-URL kwam biedt daarna alsnog een update aan die je stub overschrijft. In
+  `determineMetaURL` gaat `@updateURL` vóór die onthouden URL, en `none` breekt de check af.
+  `@downloadURL` mag daardoor gewoon blijven staan: die wordt nooit meer bereikt, en levert wel
+  het GitHub-icoon op in de overzichtslijst, want de herkomst wordt uit die URL afgeleid.
+  `dev-stub` zet allebei zelf in de stub. Controleren doe je niet in Settings: het veld
+  **Update URL** daar is `downloadURL` onder een misleidend label (`file_url = downloadURL ||
+  fileURL`), en `@updateURL` heeft in dat scherm geen veld. Het toont dus de raw-URL, ook als
+  `none` netjes is overgenomen. Controleer in plaats daarvan het gedrag: klik in de
+  werkbalk-popup op **Check for userscript updates** en er hoort geen enkel dialoogvenster te
+  komen.
+- **De stub moet mee met elke `@version`-bump.** De code komt via `@require` uit de repo, dus
+  functioneel merk je er niets van, maar de Version-kolom wijst anders een oude versie aan en
+  die kolom is nu net waarmee je dev van gebruik onderscheidt. Draai `bin/dev-stub` opnieuw en
+  plak.
 
 Lokale bestanden lezen mag Tampermonkey alleen als **Allow access to file URLs** aanstaat, bij
 `chrome://extensions` onder Details.
