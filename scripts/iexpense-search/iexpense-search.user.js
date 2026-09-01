@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         iExpense: doorzoekbare rapportentabel
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.7.1
+// @version      1.8.0
 // @description  Vervangt "Update Expense Reports" op Expenses Home door dezelfde tabel met alle rijen tegelijk, doorzoekbaar en sorteerbaar zonder server round trips, in een scrollvenster van vaste hoogte zodat de pagina niet verspringt, en zet Notifications bovenaan met Track Submitted onderaan
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later
@@ -317,10 +317,10 @@
 
   function matches(row, query) {
     if (!query) return true;
-    // Status staat bewust niet in de hooiberg: op status filter je met een chip
-    // of met het oog, en de drie waarden ("Saved", "In Progress", "Withdrawn")
-    // bevatten losse letters die anders elke korte zoekterm laten aanslaan.
-    var hay = [row.num, row.name, row.date, row.total, row.purpose]
+    // Alleen Name en Report Number: op status filter je met een chip of met het
+    // oog, en datum, bedrag en purpose leveren vooral toevallige treffers op
+    // (losse cijfers en veelvoorkomende woorden laten elke korte term aanslaan).
+    var hay = [row.num, row.name]
       .join(' ')
       .toLowerCase();
     return query
