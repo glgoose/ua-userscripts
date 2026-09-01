@@ -21,9 +21,11 @@ gekozen waarde zit wel al in de pagina, maar alleen als tooltip op die link.
   komt van [select-search](../select-search/README.md#recent) en werkt intussen op elke grote
   dropdown op BIPP, niet enkel op de budgetcode. Hier telt een code pas als de server ze
   aanvaard heeft: mislukt het opslaan, dan blijft recent ongemoeid.
-- Is de grootboekrekening ook gekozen, dan komt de code in **Interne commentaar** te staan.
-  Stond daar al iets, dan komt ze op een nieuwe regel eronder. Kies je daarna een andere code,
-  dan wordt die regel vervangen in plaats van dat er een bijkomt.
+- De gekozen code komt ook in **Interne commentaar** te staan, wat er verder in de rij al dan
+  niet ingevuld is. Enkel de code zelf, dus `8947-2025` en niet de omschrijving die in de
+  dropdown achter het streepje staat. Stond er al tekst in het veld, dan komt ze op een nieuwe
+  regel eronder. Kies je daarna een andere code, dan wordt die regel vervangen in plaats van dat
+  er een bijkomt.
 - Is er nog niets gekozen, dan staat er grijs `budgetcode` in het veld. Dat is een
   placeholder, geen waarde, en hij staat niet als regel in de lijst.
 - Wissen doe je met het kruisje rechts in het veld. Zodra er een code staat en je met de muis

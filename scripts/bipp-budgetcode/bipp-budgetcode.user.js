@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         BIPP: budgetcode in het winkelmandje
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.5.0
-// @description  Zet de budgetcode als dropdown in de winkelmandjerij zelf, onder de grootboekrekening, zodat je niet meer via de aparte pagina Selectie analytische velden moet en de gekozen code ook gewoon ziet staan. Slaat op via een achtergrond-postback en vult de code aan in Interne commentaar.
+// @version      1.6.0
+// @description  Zet de budgetcode als dropdown in de winkelmandjerij zelf, onder de grootboekrekening, zodat je niet meer via de aparte pagina Selectie analytische velden moet en de gekozen code ook gewoon ziet staan. Slaat op via een achtergrond-postback en zet de code ook in Interne commentaar.
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later
 // @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/bipp-budgetcode
@@ -212,11 +212,6 @@
     return '';
   }
 
-  function ledgerSet(row) {
-    var v = row.ledger ? row.ledger.value : '';
-    return !!v && v !== '-1';
-  }
-
   function rows() {
     return qsa('a[id$="_SpecifyAF"]').map(function (link) {
       var m = /WebForm_PostBackOptions\("([^"]+)"/.exec(link.getAttribute('href') || '');
@@ -253,33 +248,45 @@
     try { return sessionStorage.getItem(commentKey(row)) || ''; } catch (e) { return ''; }
   }
 
+  // De dropdown toont "8947-2025 - The Social History of ...", maar in de commentaar hoort enkel
+  // de code. Bij sommige participanten staat er geen omschrijving achter en is het label de code
+  // zelf, vandaar de terugval op de waarde.
+  function shortCode(row, code) {
+    if (!code) return '';
+    var select = row.ui && row.ui.select;
+    var opt = select ? select.querySelector('option[value="' + CSS.escape(code) + '"]') : null;
+    var label = opt ? (opt.textContent || '') : '';
+    var i = label.indexOf(' - ');
+    return (i > 0 ? label.slice(0, i).trim() : '') || code;
+  }
+
   // Alleen de budgetcode komt in Interne commentaar, op een eigen regel. Bestaande tekst zoals
   // een OZ-nummer blijft staan. Een eerder door ons weggeschreven regel wordt vervangen in
   // plaats van dat er een tweede bijkomt.
   function updateComment(row, code) {
     var ta = row.comment;
     if (!ta) return;
-    if (!ledgerSet(row)) return;
 
-    var prev = lastWritten(row);
+    var short = shortCode(row, code);
+    // Ook de rauwe waarde telt als vorige regel: een sessie van voor deze versie heeft de lange
+    // vorm onthouden, en zonder deze match zou de korte code er als tweede regel bijkomen.
+    var candidates = [lastWritten(row), code].filter(Boolean);
     var lines = (ta.value || '').split('\n');
     var at = -1;
-    if (prev) {
-      for (var i = 0; i < lines.length; i++) {
-        if (lines[i].trim() === prev) { at = i; break; }
-      }
+    for (var i = 0; i < lines.length; i++) {
+      if (candidates.indexOf(lines[i].trim()) >= 0) { at = i; break; }
     }
 
     if (at >= 0) {
-      if (code) lines[at] = code;
+      if (short) lines[at] = short;
       else lines.splice(at, 1);
       ta.value = lines.join('\n');
-    } else if (code) {
-      var already = lines.some(function (l) { return l.trim() === code; });
-      if (!already) ta.value = ta.value ? ta.value + '\n' + code : code;
+    } else if (short) {
+      var already = lines.some(function (l) { return l.trim() === short; });
+      if (!already) ta.value = ta.value ? ta.value + '\n' + short : short;
     }
 
-    rememberWritten(row, code);
+    rememberWritten(row, short);
   }
 
   // ---------- UI in de rij ----------
@@ -499,8 +506,6 @@
       row.savedCode = currentCode(row);
       renderSelect(row);
       setState(row, 'rust', '');
-      // Staat de code er al serverzijdig en nog niet in de commentaar, dan aanvullen.
-      if (row.savedCode) updateComment(row, row.savedCode);
     });
 
     loadOptions().then(function (data) {
@@ -514,6 +519,9 @@
           return;
         }
         fillOptions(u.select, data, row.savedCode);
+        // Staat de code er al serverzijdig en nog niet in de commentaar, dan aanvullen. Dit kan
+        // pas hier: shortCode heeft het label nodig en dat komt met de optielijst mee.
+        if (row.savedCode) updateComment(row, row.savedCode);
         if (typeof window.__selectSearchScan === 'function') window.__selectSearchScan();
       });
     })['catch'](function (err) {
