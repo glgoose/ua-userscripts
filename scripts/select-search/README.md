@@ -112,7 +112,7 @@ Hoog bij elke wijziging `@version` op in `src/userscript-header.txt`, anders kri
 update binnen.
 
 Tijdens het ontwikkelen laad je het script via een dev-stub in plaats van een geplakte kopie,
-zie [Ontwikkelen](../../README.md#ontwikkelen). Draai eerst `./build.sh`, want de stub wijst
+zie [Ontwikkelen](../../AGENTS.md#dev-stub-vs-gebruik). Draai eerst `./build.sh`, want de stub wijst
 naar `select-search.user.js`.
 
 ## Licentie

@@ -77,7 +77,7 @@ Eén bestand, geen build, geen dependencies. Hoog `@version` op bij elke wijzigi
 niemand de update binnen.
 
 Tijdens het ontwikkelen laad je het script via een dev-stub in plaats van een geplakte kopie,
-zie [Ontwikkelen](../../README.md#ontwikkelen).
+zie [Ontwikkelen](../../AGENTS.md#dev-stub-vs-gebruik).
 
 ```sh
 node --check bipp-budgetcode.user.js

@@ -52,7 +52,7 @@ Deze aanpak omzeilt de server volledig: wat je op je scherm ziet is wat in het b
 Eén bestand, geen build. De enige dependency komt via `@require` binnen.
 
 Tijdens het ontwikkelen laad je het script via een dev-stub in plaats van een geplakte kopie,
-zie [Ontwikkelen](../../README.md#ontwikkelen).
+zie [Ontwikkelen](../../AGENTS.md#dev-stub-vs-gebruik).
 
 ```sh
 node --check peoplesoft-excel-download.user.js
