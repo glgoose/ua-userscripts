@@ -401,11 +401,12 @@
       // legt een eigen invoerveld over de dropdown dat daar niet in meegaat.
       target.style.opacity = state === 'bezig' ? '0.5' : '1';
       target.style.pointerEvents = state === 'bezig' ? 'none' : '';
-      // select-search kan de wrapper tussen twee toestanden door aanmaken. Zet het grijs dus
-      // op allebei, anders blijft de select eronder half doorzichtig staan.
+      // De originele select ligt na verrijking absoluut onder de wrapper met opacity 0
+      // (select-search.js:260). Die opacity mag hier niet mee veranderen: zodra de wrapper
+      // half doorzichtig wordt, schijnt de select eronder mee door en staat de tekst dubbel.
       if (u.select && u.select !== target) {
-        u.select.style.opacity = target.style.opacity;
-        u.select.style.pointerEvents = target.style.pointerEvents;
+        u.select.style.opacity = '0';
+        u.select.style.pointerEvents = 'none';
       }
       if (u.select) {
         u.select.style.outline = state === 'fout' ? '1.5px solid #c33' : '';
