@@ -10,7 +10,7 @@ hand geplakte kopie, want dan zijn er twee waarheden die stil uit elkaar lopen.
 
 | spoor       | wat er in Tampermonkey staat            | grootte           | `@version`  |
 | ----------- | --------------------------------------- | ----------------- | ----------- |
-| **dev**     | stub met `@require file:///...`          | een paar honderd byte | `1.0.0-dev` |
+| **dev**     | stub met `@require file:///...`          | een paar honderd byte | `0.0.0-dev` |
 | **gebruik** | volledige kopie via de raw-URL           | de echte grootte  | `1.0.0`     |
 
 De grootte in het dashboard zegt dus in welk spoor een rij zit.
@@ -44,10 +44,14 @@ Drie dingen die aan die stub vasthangen:
   `none` netjes is overgenomen. Controleer in plaats daarvan het gedrag: klik in de
   werkbalk-popup op **Check for userscript updates** en er hoort geen enkel dialoogvenster te
   komen.
-- **De stub moet mee met elke `@version`-bump.** De code komt via `@require` uit de repo, dus
-  functioneel merk je er niets van, maar de Version-kolom wijst anders een oude versie aan en
-  die kolom is nu net waarmee je dev van gebruik onderscheidt. Draai `bin/dev-stub` opnieuw en
-  plak.
+- **De stub hoeft niet mee met een `@version`-bump.** Ze staat op een vaste `0.0.0-dev`. Een
+  echt nummer zou daar toch niets zeggen: de code komt bij elke pagina-load van schijf, dus wat
+  er draait is wat er nú in de repo staat. De kolom hoeft enkel `-dev` te tonen. Opnieuw
+  genereren en plakken doe je alleen als de metadata zelf wijzigt, dus bij een andere `@match`,
+  `@grant`, `@run-at` of `@require`.
+- **Heeft de map een `src/`, dan wijst `@require` daarnaar,** niet naar het gebouwde script.
+  Opslaan en de pagina herladen volstaat; `build.sh` draai je pas als je publiceert, voor de
+  raw-URL en de bookmarklet.
 
 Lokale bestanden lezen mag Tampermonkey alleen als **Allow access to file URLs** aanstaat, bij
 `chrome://extensions` onder Details.

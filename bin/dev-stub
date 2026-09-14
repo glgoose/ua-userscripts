@@ -71,19 +71,27 @@ if [ -z "$src" ]; then
   exit 1
 fi
 
+# Heeft de map een build, dan wijst @require naar de bron in plaats van naar het
+# gebouwde bestand: zo volstaat opslaan en de pagina herladen, zonder build.sh
+# ertussen. De metadata blijft wel uit het gebouwde script komen, want de bron
+# heeft geen ==UserScript==-blok.
+code="$src"
+if [ -f "$dir/src/$(basename "$dir").js" ]; then
+  code="$dir/src/$(basename "$dir").js"
+fi
+
 # Eén metadataveld uit de kop van het echte script halen.
 meta() {
   sed -n 's|^// @'"$1"'  *\(.*[^ ]\) *$|\1|p' "$src"
 }
 
 name="$(meta name | head -1)"
-version="$(meta version | head -1)"
 namespace="$(meta namespace | head -1)"
 author="$(meta author | head -1)"
 downloadurl="$(meta downloadURL | head -1)"
 
-if [ -z "$name" ] || [ -z "$version" ]; then
-  echo "dev-stub: @name of @version ontbreekt in $src" >&2
+if [ -z "$name" ]; then
+  echo "dev-stub: @name ontbreekt in $src" >&2
   exit 1
 fi
 
@@ -97,7 +105,10 @@ fi
   echo "// ==UserScript=="
   printf '// @name         %s\n' "$name"
   [ -n "$namespace" ] && printf '// @namespace    %s\n' "$namespace"
-  printf '// @version      %s-dev\n' "${version%-dev}"
+  # Vaste versie, losgekoppeld van het echte script. De code komt bij elke pagina-load
+  # van schijf, dus een nummer hier zou hooguit suggereren dat er iets vastligt. De kolom
+  # hoeft alleen -dev te tonen, en zo hoeft de stub niet mee met elke @version-bump.
+  printf '// @version      0.0.0-dev\n'
   printf '// @description  Dev-loader. De code staat in de repo, dit bestand wijst er alleen naar.\n'
   [ -n "$author" ] && printf '// @author       %s\n' "$author"
   [ -n "$downloadurl" ] && printf '// @%-12s %s\n' downloadURL "$downloadurl"
@@ -118,7 +129,7 @@ fi
   meta resource | while IFS= read -r value; do
     [ -n "$value" ] && printf '// @%-12s %s\n' resource "$value"
   done
-  printf '// @%-12s file://%s\n' require "$src"
+  printf '// @%-12s file://%s\n' require "$code"
   for key in grant connect run-at noframes; do
     meta "$key" | while IFS= read -r value; do
       [ -n "$value" ] && printf '// @%-12s %s\n' "$key" "$value"
@@ -133,6 +144,4 @@ if [ "$copy" -eq 1 ] && command -v pbcopy >/dev/null 2>&1; then
   echo >&2
   echo "dev-stub: staat op het klembord" >&2
 fi
-echo "dev-stub: genereer de stub opnieuw na elke @version-bump, anders wijst de" >&2
-echo "dev-stub: Version-kolom in het dashboard een oude versie aan" >&2
 rm -f "$dir/.dev-stub.tmp"
