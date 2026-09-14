@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BIPP: budgetcode in het winkelmandje
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.6.0
+// @version      1.7.0
 // @description  Zet de budgetcode als dropdown in de winkelmandjerij zelf, onder de grootboekrekening, zodat je niet meer via de aparte pagina Selectie analytische velden moet en de gekozen code ook gewoon ziet staan. Slaat op via een achtergrond-postback en zet de code ook in Interne commentaar.
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later
@@ -96,8 +96,33 @@
     return data;
   }
 
+  // De selectorpagina crasht serverzijdig zolang de sessie nog geen huidige regel heeft, en
+  // een kale GET geeft dan HTTP 500. De postback van SpecifyAF zet die regel wel, waarna
+  // dezelfde pagina gewoon de lijst geeft. Dit is dus de keten van saveCode zonder het
+  // opslaan, met Terug op het eind zodat de server weer op het winkelmandje staat en de
+  // viewstate in de live pagina klopt.
+  function loadViaSelector(target) {
+    return enqueue(function () {
+      var form = document.forms[0];
+      return postForm(form.getAttribute('action') || location.pathname,
+        serialize(form, { '__EVENTTARGET': target, '__EVENTARGUMENT': '' })
+      ).then(function (doc) {
+        var data = harvest(doc);
+        if (!data) throw new Error('optielijst niet gevonden');
+        // De lijst is binnen. Lukt Terug niet, dan is dat spijtig voor de viewstate maar geen
+        // reden om de dropdown leeg te laten: de eerstvolgende keuze post het formulier toch
+        // opnieuw mee.
+        return postForm(SELECTOR_URL, serialize(doc.forms[0], { 'BackBtn': 'Terug' }))
+          .then(function (cart) {
+            if (cart.getElementById('resultTable')) syncHidden(cart);
+            return data;
+          })['catch'](function () { return data; });
+      });
+    });
+  }
+
   var loading = null;
-  function loadOptions() {
+  function loadOptions(target) {
     var cached = readCache();
     if (cached) return Promise.resolve(cached);
     if (loading) return loading;
@@ -110,6 +135,9 @@
         var data = harvest(new DOMParser().parseFromString(t, 'text/html'));
         if (!data) throw new Error('optielijst niet gevonden');
         return data;
+      })['catch'](function (err) {
+        if (!target) throw err;
+        return loadViaSelector(target);
       });
     loading['catch'](function () { loading = null; });
     return loading;
@@ -354,6 +382,10 @@
     return u.select;
   }
 
+  // De uitweg heet in de rij zelf Creëer of Bekijk, afhankelijk van wat er al gekozen is.
+  // Noem die tekst letterlijk, anders moet je zelf uitzoeken welke link bedoeld is.
+  function linkName(row) { return text(row.link) || 'Creëer'; }
+
   function setState(row, state, message) {
     var u = ui(row);
     var target = skin(row);
@@ -369,6 +401,12 @@
       // legt een eigen invoerveld over de dropdown dat daar niet in meegaat.
       target.style.opacity = state === 'bezig' ? '0.5' : '1';
       target.style.pointerEvents = state === 'bezig' ? 'none' : '';
+      // select-search kan de wrapper tussen twee toestanden door aanmaken. Zet het grijs dus
+      // op allebei, anders blijft de select eronder half doorzichtig staan.
+      if (u.select && u.select !== target) {
+        u.select.style.opacity = target.style.opacity;
+        u.select.style.pointerEvents = target.style.pointerEvents;
+      }
       if (u.select) {
         u.select.style.outline = state === 'fout' ? '1.5px solid #c33' : '';
         u.select.style.outlineOffset = state === 'fout' ? '-1px' : '';
@@ -489,7 +527,8 @@
         setValue(row, before);
         row.savedCode = before;
         setState(row, 'fout', 'niet opgeslagen: ' +
-          (err && err.message ? err.message : 'fout') + '. Gebruik de link ernaast.');
+          (err && err.message ? err.message : 'fout') +
+          '. Kies de code via ' + linkName(row) + ' hiernaast.');
       });
     });
   }
@@ -505,20 +544,22 @@
     list.forEach(function (row) {
       row.savedCode = currentCode(row);
       renderSelect(row);
-      setState(row, 'rust', '');
+      setState(row, 'bezig', 'budgetcodes laden…');
     });
 
-    loadOptions().then(function (data) {
+    loadOptions(list[0].target).then(function (data) {
       list.forEach(function (row) {
         var u = ui(row);
         // Meerdere analytische velden kunnen we niet met een enkele dropdown afhandelen, dan
         // laten we de vendor-flow staan.
         if (data.fields && data.fields.length > 1) {
           u.select.disabled = true;
-          setState(row, 'fout', 'meerdere analytische velden, gebruik de link ernaast');
+          setState(row, 'fout', 'meerdere analytische velden: kies de code via ' +
+            linkName(row) + ' hiernaast.');
           return;
         }
         fillOptions(u.select, data, row.savedCode);
+        setState(row, 'rust', '');
         // Staat de code er al serverzijdig en nog niet in de commentaar, dan aanvullen. Dit kan
         // pas hier: shortCode heeft het label nodig en dat komt met de optielijst mee.
         if (row.savedCode) updateComment(row, row.savedCode);
@@ -527,8 +568,9 @@
     })['catch'](function (err) {
       list.forEach(function (row) {
         ui(row).select.disabled = true;
-        setState(row, 'fout', 'lijst niet geladen: ' +
-          (err && err.message ? err.message : 'fout') + '. Gebruik de link ernaast.');
+        setState(row, 'fout', 'Lijst niet geladen (' +
+          (err && err.message ? err.message : 'fout') + '). Klik één keer op ' +
+          linkName(row) + ' hiernaast en daarna op Terug, dan laadt de lijst wel.');
       });
     });
   }

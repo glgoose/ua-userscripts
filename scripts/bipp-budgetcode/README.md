@@ -53,6 +53,9 @@ naar de selectorpagina, *Opslaan*, en *Terug*. Het script controleert in het ant
 server de waarde echt geselecteerd heeft en verwisselt daarna `__VIEWSTATE`, `__EVENTVALIDATION`
 en `__VIEWSTATEGENERATOR` in de live pagina, zodat een gewone postback erna blijft werken.
 
+Dezelfde keten haalt ook de optielijst op als de selectorpagina niet rechtstreeks opvraagbaar
+is, dan zonder *Opslaan*: de postback, meteen de lijst uit het antwoord, en *Terug*.
+
 Omdat het live formulier meegestuurd wordt, gaat niet-opgeslagen typwerk (aantal, commentaar)
 niet verloren: dat wordt door de eerste stap zelfs meteen mee gecommit. Het verkeer per keuze is
 hetzelfde als dat van de drie handmatige stappen.
@@ -67,6 +70,11 @@ hetzelfde als dat van de drie handmatige stappen.
   commentaarregel nog vasthouden: de eerste stap van de keten commit het formulier, de latere
   stap is degene die faalde. De eerstvolgende geslaagde keuze zet dat recht, want die stuurt het
   formulier opnieuw mee.
+- **In een verse sessie kost het eerste laden drie verzoeken.** `AnalyticalFieldSelector.aspx`
+  geeft HTTP 500 (`NullReferenceException` in `Page_Load`) zolang de sessie nog geen huidige
+  regel heeft. Het script vangt dat zelf op met de keten hieronder, dus je merkt er enkel een
+  moment grijze dropdowns van. Lukt ook dat niet, dan zegt de melding wat je met de hand moet
+  doen: één keer op *Creëer* klikken en daarna op *Terug*.
 - **Meer dan één analytisch veld** wordt niet inline aangeboden. De selectorpagina is een
   repeater; verschijnt er ooit een tweede veld, dan valt het script voor die rij terug op de
   link.
