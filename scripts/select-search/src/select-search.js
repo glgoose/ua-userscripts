@@ -17,6 +17,10 @@
   // kleinere dropdowns laten we met rust; hoogstens MAX_RENDER treffers tekenen
   var MIN_OPTIONS = 10;
   var MAX_RENDER = 200;
+  // Streefbreedte van de lijst. Het veld zelf is meestal smaller dan zijn labels; onder deze
+  // breedte wordt de lijst een kolom van afgebroken zinnen in plaats van een leesbare lijst.
+  var LIJST_BREED = 420;
+  var MARGE = 8;
   var uid = 0;
   // Recent gebruikte waarden per veld. Vijf, want select-search filtert het blok mee tijdens het
   // zoeken: wat buiten de top vijf valt typ je sneller dan je het herkent. Geen vervaltermijn,
@@ -128,8 +132,11 @@
 
   /* ------------------------------------------------------------ highlight */
 
-  function highlight(item, tokens) {
-    if (!tokens.length) return escapeHtml(item.label);
+  // Alle treffers over het volledige label, gesorteerd en samengevoegd. Los van het tekenen,
+  // want een label wordt in twee stukken getekend (code en omschrijving) en een treffer mag
+  // over die grens heen lopen.
+  function matchRanges(item, tokens) {
+    if (!tokens.length) return [];
     var ranges = [];
     for (var t = 0; t < tokens.length; t++) {
       var tok = tokens[t], from = 0, idx;
@@ -140,7 +147,7 @@
         from = idx + tok.length;
       }
     }
-    if (!ranges.length) return escapeHtml(item.label);
+    if (!ranges.length) return ranges;
     ranges.sort(function (a, b) { return a[0] - b[0]; });
     var merged = [ranges[0].slice()];
     for (var r = 1; r < ranges.length; r++) {
@@ -148,13 +155,33 @@
       if (ranges[r][0] <= last[1]) last[1] = Math.max(last[1], ranges[r][1]);
       else merged.push(ranges[r].slice());
     }
-    var html = '', pos = 0;
-    for (var m = 0; m < merged.length; m++) {
-      html += escapeHtml(item.label.slice(pos, merged[m][0]));
-      html += '<mark>' + escapeHtml(item.label.slice(merged[m][0], merged[m][1])) + '</mark>';
-      pos = merged[m][1];
+    return merged;
+  }
+
+  // Tekent label.slice(from, to). Een treffer die de grens kruist wordt afgeknipt, zodat beide
+  // helften hun eigen <mark> krijgen en er geen tag over de spans heen loopt.
+  function highlight(item, ranges, from, to) {
+    var html = '', pos = from;
+    for (var m = 0; m < ranges.length; m++) {
+      var a = Math.max(ranges[m][0], from), b = Math.min(ranges[m][1], to);
+      if (b <= a) continue;
+      html += escapeHtml(item.label.slice(pos, a));
+      html += '<mark>' + escapeHtml(item.label.slice(a, b)) + '</mark>';
+      pos = b;
     }
-    return html + escapeHtml(item.label.slice(pos));
+    return html + escapeHtml(item.label.slice(pos, to));
+  }
+
+  // Waar splitst "10-AD010000-CFALWERK - ADRIVA (ALGEMEEN)" in code en omschrijving? Enkel bij de
+  // eerste " - " en enkel als daar echt een code voor staat: één woord zonder spatie. Zo blijft
+  // een gewone titel met een gedachtestreepje ("Emotie en verbeelding - 2025") ongesplitst.
+  // De teruggegeven index staat ná de spatie: label.slice(0, punt - 1) is de code met zijn
+  // streepje, label.slice(punt) de omschrijving, en de spatie ertussen valt buiten beide.
+  function splitPunt(label) {
+    var sep = label.indexOf(' - ');
+    if (sep <= 0) return -1;
+    if (label.lastIndexOf(' ', sep - 1) !== -1) return -1;
+    return sep + 3;
   }
 
   /* ----------------------------------------------------------------- css */
@@ -185,9 +212,25 @@
     'box-shadow:0 4px 14px rgba(0,0,0,.22);',
     'font:13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:none}',
     'ul.open{display:block}',
-    'li{padding:3px 8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    'li.kop{padding:6px 8px 2px;color:#777;font-size:11px;font-weight:600;cursor:default}',
-    'li.active{background:#0b57d0;color:#fff}',
+    // Een label dat niet past loopt terug over een volgende regel met een kleine hangende
+    // inspring. Niet uitlijnen onder de omschrijving: bij een lange code schuift die inspring mee
+    // tot halverwege de rij en blijft er nauwelijks tekstbreedte over. 2.5ch is de breedte van
+    // twee cijfers plus een streepje, dus precies het "10-" waarmee elke budgetcode begint: daar
+    // valt de vervolgregel netjes samen met de rest van de code. Elders is het gewoon een kleine
+    // inspring, genoeg om te zien dat een regel bij de vorige hoort. ch en niet px, want de maat
+    // hoort bij de tekstgrootte en niet bij het scherm.
+    'li{padding:4px 8px;cursor:pointer;line-height:1.3;',
+    'padding-left:calc(8px + 2.5ch);text-indent:-2.5ch;overflow-wrap:break-word}',
+    // De code zelf mag nooit afbreken, ook niet op zijn eigen streepjes: white-space:pre houdt
+    // "10-AD113010 -" in één stuk. De spatie erna staat buiten de span, zodat het eerste woord
+    // van de omschrijving wel naar de volgende regel kan.
+    'li .c{white-space:pre}',
+    // Meerregelige rijen lopen anders in elkaar over: het gat binnen een rij is even groot als
+    // dat tussen twee rijen. Een haarlijn tussen twee opties zegt waar de ene stopt.
+    'li[data-i]+li[data-i]{border-top:1px solid #eee}',
+    'li.kop{padding:6px 8px 2px;padding-left:8px;text-indent:0;color:#777;font-size:11px;',
+    'font-weight:600;cursor:default}',
+    'li.active{background:#0b57d0;color:#fff;border-top-color:#0b57d0}',
     'li.active mark{background:#ffe08a;color:#000}',
     'li.dis{color:#999;cursor:default}',
     'li.note{color:#666;cursor:default;font-style:italic;padding-top:5px}',
@@ -386,10 +429,17 @@
       var below = win.innerHeight - r.bottom - 6;
       var above = r.top - 6;
       var down = below >= 160 || below >= above;
-      list.style.left = r.left + 'px';
+      // De lijst hing vast aan de linkerrand van het veld en kon dus alleen naar rechts groeien.
+      // Bij een veld rechts in het formulier bleef er niets over en viel elk label terug op
+      // afbreken. Daarom eerst de breedte laten kiezen met de volle vensterbreedte beschikbaar,
+      // die meten, en de lijst dan zo ver naar links schuiven als nodig om ze te laten passen.
+      var wens = Math.min(Math.max(r.width, LIJST_BREED), win.innerWidth - MARGE * 2);
+      list.style.left = MARGE + 'px';
       list.style.minWidth = r.width + 'px';
-      list.style.maxWidth = Math.max(r.width, Math.min(560, win.innerWidth - r.left - 8)) + 'px';
+      list.style.maxWidth = wens + 'px';
       list.style.maxHeight = Math.max(120, (down ? below : above)) + 'px';
+      var breed = list.offsetWidth;
+      list.style.left = Math.max(MARGE, Math.min(r.left, win.innerWidth - MARGE - breed)) + 'px';
       if (down) {
         list.style.top = r.bottom + 2 + 'px';
         list.style.bottom = 'auto';
@@ -441,10 +491,16 @@
             html += '<li class="kop">' + escapeHtml(it.group) + '</li>';
           }
           vorige = it.group;
+          var ranges = matchRanges(it, tokens);
+          var punt = splitPunt(it.label);
+          var binnen = punt === -1
+            ? highlight(it, ranges, 0, it.label.length)
+            : '<span class="c">' + highlight(it, ranges, 0, punt - 1) + '</span> '
+              + highlight(it, ranges, punt, it.label.length);
           html += '<li role="option" id="' + id + '-o' + i + '" data-i="' + i + '"'
             + (it.removable ? ' data-rm="1"' : '')
             + (it.disabled ? ' class="dis" aria-disabled="true"' : '') + '>'
-            + highlight(it, tokens)
+            + binnen
             + '</li>';
         }
         if (shown.length > n) {

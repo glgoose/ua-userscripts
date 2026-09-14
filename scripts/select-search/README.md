@@ -46,6 +46,13 @@ Klik een dropdown aan en typ.
   `{value, label, index}`. Wie de opties leverde beslist wat verwijderen betekent en past de
   `<select>` aan, waarna de lijst zichzelf hertekent met behoud van de zoekterm en de plek van
   de selectie.
+- De lijst is breder dan het veld, tot 420px, en schuift daarvoor zo nodig naar links op. Een
+  veld dat rechts in het formulier staat krijgt dus dezelfde leesbare breedte als een veld links.
+- De code (alles voor de eerste ` - `, als dat één woord is) breekt nooit af, ook niet op zijn
+  eigen streepjes. Past een label niet op één regel, dan loopt het terug met een hangende
+  inspring van `2.5ch`: net de breedte van het `10-` waarmee elke budgetcode begint, en elders
+  genoeg om te zien dat een regel bij de vorige hoort. Tussen twee opties staat een haarlijn,
+  want een meerregelige rij loopt anders over in de volgende.
 - Boven 200 treffers toont het enkel het aantal. Verfijn dan je zoekterm.
 
 ## Recent
