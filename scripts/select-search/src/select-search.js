@@ -512,6 +512,12 @@
       var doel = 0;
       if (behoud && vorigeActieve > 0) doel = Math.min(vorigeActieve, shown.length - 1);
       setActive(shown.length ? doel : -1, false);
+      // De lijst is zo breed als haar inhoud, dus elke filterslag verandert die breedte en
+      // daarmee ook hoever ze naar links geschoven moet staan. Zonder deze herberekening blijft
+      // ze hangen op de plek die bij de volledige lijst hoorde: na het intypen van een zoekterm
+      // staan er dan drie korte regels ver links van het veld waar ze bij horen. openList roept
+      // position() zelf aan, en daar staat open nog op false, dus dit verdubbelt niets.
+      if (open) position();
     }
 
     function setActive(i, scroll) {
