@@ -32,18 +32,13 @@ Drie dingen die aan die stub vasthangen:
 - **De metadata komt uit de stub, niet uit de required file.** `@match`, `@grant` en `@run-at`
   moeten er dus in staan; het `==UserScript==`-blok van de file zelf wordt genegeerd. `dev-stub`
   neemt die velden over uit het echte script, zodat de twee niet uit elkaar lopen.
-- **`@updateURL` staat op `none`.** Die velden weglaten volstaat niet: Tampermonkey onthoudt de
-  download-URL van de oorspronkelijke installatie apart van het meta-blok, dus een rij die ooit
-  van de raw-URL kwam biedt daarna alsnog een update aan die je stub overschrijft. In
-  `determineMetaURL` gaat `@updateURL` vóór die onthouden URL, en `none` breekt de check af.
-  `@downloadURL` mag daardoor gewoon blijven staan: die wordt nooit meer bereikt, en levert wel
-  het GitHub-icoon op in de overzichtslijst, want de herkomst wordt uit die URL afgeleid.
-  `dev-stub` zet allebei zelf in de stub. Controleren doe je niet in Settings: het veld
-  **Update URL** daar is `downloadURL` onder een misleidend label (`file_url = downloadURL ||
-  fileURL`), en `@updateURL` heeft in dat scherm geen veld. Het toont dus de raw-URL, ook als
-  `none` netjes is overgenomen. Controleer in plaats daarvan het gedrag: klik in de
-  werkbalk-popup op **Check for userscript updates** en er hoort geen enkel dialoogvenster te
-  komen.
+- **`@downloadURL` en `@updateURL` staan er allebei niet in.** De code komt uit een lokaal
+  bestand, dus er is niets te downloaden of bij te werken. `@updateURL none` is geen
+  oplossing: de editor van Tampermonkey toont dan een eslint-waarschuwing
+  (`use-download-and-update-url`), en zonder `@downloadURL` heeft `@updateURL` ook geen
+  functie. Een rij die ooit van de raw-URL kwam, onthoudt die URL apart van het meta-blok en
+  biedt dan alsnog een update aan die de stub overschrijft: verwijder zo'n rij en maak de stub
+  opnieuw aan via **Create a new script**.
 - **De stub hoeft niet mee met een `@version`-bump.** Ze staat op een vaste `0.0.0-dev`. Een
   echt nummer zou daar toch niets zeggen: de code komt bij elke pagina-load van schijf, dus wat
   er draait is wat er nú in de repo staat. De kolom hoeft enkel `-dev` te tonen. Opnieuw

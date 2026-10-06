@@ -88,19 +88,15 @@ meta() {
 name="$(meta name | head -1)"
 namespace="$(meta namespace | head -1)"
 author="$(meta author | head -1)"
-downloadurl="$(meta downloadURL | head -1)"
 
 if [ -z "$name" ]; then
   echo "dev-stub: @name ontbreekt in $src" >&2
   exit 1
 fi
 
-# @updateURL staat op none, want weglaten volstaat niet: Tampermonkey onthoudt de
-# download-URL van de oorspronkelijke installatie los van het meta-blok, en zou de
-# stub daarmee bij de eerste update-check overschrijven met de volledige raw-versie.
-# In determineMetaURL gaat updateURL vóór die onthouden downloadURL en breekt de
-# waarde none de check af. @downloadURL mag daardoor blijven staan: die wordt nooit
-# meer bereikt en levert wel de GitHub-herkomst op in de overzichtslijst.
+# @downloadURL en @updateURL staan er allebei bewust NIET in. @updateURL none is geen
+# oplossing: Tampermonkey markeert het ontbrekende @downloadURL dan in de editor, en de
+# stub is lokaal, dus er is niets te downloaden of bij te werken.
 {
   echo "// ==UserScript=="
   printf '// @name         %s\n' "$name"
@@ -111,8 +107,6 @@ fi
   printf '// @version      0.0.0-dev\n'
   printf '// @description  Dev-loader. De code staat in de repo, dit bestand wijst er alleen naar.\n'
   [ -n "$author" ] && printf '// @author       %s\n' "$author"
-  [ -n "$downloadurl" ] && printf '// @%-12s %s\n' downloadURL "$downloadurl"
-  printf '// @%-12s %s\n' updateURL none
   for key in match include exclude; do
     meta "$key" | while IFS= read -r value; do
       [ -n "$value" ] && printf '// @%-12s %s\n' "$key" "$value"
