@@ -1,11 +1,12 @@
 # ua-userscripts
 
-| toepassing     | wat het doet                                     |                                                                                                                                                  |
-| -------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **BIPP**       | budgetcode kiezen en zien in het winkelmandje    | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js)                     |
-| **BIPP**       | zoekveld in dropdowns met veel opties            | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)                         |
-| **iExpense**   | alle onkostenrapporten in één doorzoekbare tabel | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js)                     |
-| **PeopleSoft** | werkende knop "Downloaden naar Excel"            | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js) |
+| toepassing     | wat het doet                                         |                                                                                                                                                  |
+| -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **BIPP**       | zoekveld in dropdowns met veel opties                | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)                         |
+| **BIPP**       | budgetcode kiezen en zien in het winkelmandje        | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js)                     |
+| **BIPP**       | "Inclusief niet-raamcontractartikelen" standaard aan | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js)                 |
+| **iExpense**   | alle onkostenrapporten in één doorzoekbare tabel     | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js)                     |
+| **PeopleSoft** | werkende knop "Downloaden naar Excel"                | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js) |
 
 ## Installatie-instructies
 
