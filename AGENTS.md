@@ -64,3 +64,11 @@ dashboard sorteert op naam, dus zo staan de scripts van dezelfde toepassing bij 
 - Mapnaam en bestandsnaam in kebab-case, zelfde volgorde: `<toepassing>-<functie>`.
 
 Hoog `@version` op bij elke wijziging, anders krijgt niemand de update binnen.
+
+## Testen op BIPP
+
+BIPP-pagina's zoals `OrderComposer.aspx` en `OrderRequestDetail.aspx` werken alleen via het
+menu (een `__doPostBack`, bijvoorbeeld `javascript:__doPostBack('orderRequestMenu$reviewRequestBtn','')`).
+Open je ze rechtstreeks via de URL, dan geeft de server "Object reference not set to an instance
+of an object". Dat ligt niet aan je script: navigeer eerst naar een andere BIPP-pagina en klik
+dan in het menu.
