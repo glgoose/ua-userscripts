@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         BIPP: budgetverantwoordelijke standaard op de ingelogde gebruiker
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.0.0
-// @description  Zet "Budget verantwoordelijke" bij Aanvraag evalueren op jezelf in plaats van "Alle" en start de zoekopdracht.
+// @version      1.1.0
+// @description  Zet "Budget verantwoordelijke" bij Aanvraag evalueren en "Aanvrager" bij Aanvragen op jezelf in plaats van "Alle" en start de zoekopdracht.
 // @author       glgoose
 // @license      GPL-3.0-or-later
 // @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/bipp-budgetverantwoordelijke
@@ -16,8 +16,13 @@
 (function () {
   'use strict';
 
-  var LABEL = 'budget verantwoordelijke';
-  var FLAG_KEY = 'bippBudgetverantwoordelijkeToegepast';
+  // Eén filter per scherm. De id's staan vast: op Aanvragen deelt "Aanvrager" een rij met "Status
+  // aanvraag", dus de eerste select naast een label is daar de verkeerde.
+  var FILTERS = [
+    { id: 'qBudgetOwner', name: 'budget verantwoordelijke' }, // Aanvraag evalueren
+    { id: 'qRequestor', name: 'aanvrager' }                   // Aanvragen
+  ];
+  var FLAG_PREFIX = 'bippFilterToegepast:';
   var SEARCH_DELAY_MS = 1500;
 
   function norm(s) { return (s || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
@@ -25,18 +30,6 @@
   // "Glenn Goossens" in de kop en "Goossens Glenn" in de lijst: vergelijk de woorden, niet de volgorde.
   function words(s) {
     return norm(s.replace(/[^A-Za-zÀ-ÿ\s-]/g, ' ')).split(' ').filter(Boolean).sort();
-  }
-
-  function findSelect() {
-    var cells = document.querySelectorAll('td, th, label, span, div');
-    for (var i = 0; i < cells.length; i++) {
-      if (cells[i].children.length === 0 && norm(cells[i].textContent) === LABEL) {
-        var row = cells[i].closest('tr') || cells[i].parentNode;
-        var sel = row && row.querySelector('select');
-        if (sel) return sel;
-      }
-    }
-    return null;
   }
 
   function findOption(select, name) {
@@ -53,28 +46,45 @@
     })[0];
   }
 
-  var select = findSelect();
-
-  // Een pagina zonder dit veld wist de vlag, zodat het volgende bezoek weer de standaard zet.
-  if (!select) {
-    try { sessionStorage.removeItem(FLAG_KEY); } catch (e) { /* geen opslag */ }
-    return;
+  function flagged(id) {
+    try { return !!sessionStorage.getItem(FLAG_PREFIX + id); } catch (e) { return false; }
+  }
+  function setFlag(id, on) {
+    try {
+      if (on) sessionStorage.setItem(FLAG_PREFIX + id, '1');
+      else sessionStorage.removeItem(FLAG_PREFIX + id);
+    } catch (e) { /* geen opslag */ }
   }
 
-  // Na de zoekopdracht laadt dezelfde pagina opnieuw: een bewuste keuze van "Alle" blijft dan staan.
-  try { if (sessionStorage.getItem(FLAG_KEY)) return; } catch (e) { /* geen opslag */ }
-
-  var current = select.options[select.selectedIndex];
-  if (!current || norm(current.text) !== 'alle') return;
+  // Een pagina zonder dit veld wist de vlag, zodat het volgende bezoek weer de standaard zet.
+  var present = FILTERS.filter(function (f) {
+    var there = !!document.getElementById(f.id);
+    if (!there) setFlag(f.id, false);
+    return there;
+  });
+  if (!present.length) return;
 
   var m = document.body.innerText.match(/Welkom\s+(.+?)\s+-\s/);
   if (!m) { console.warn('[bipp-budgetverantwoordelijke] geen "Welkom <naam> -" in de kop'); return; }
-  var option = findOption(select, m[1]);
-  if (!option) { console.warn('[bipp-budgetverantwoordelijke] geen optie voor', m[1]); return; }
 
-  try { sessionStorage.setItem(FLAG_KEY, '1'); } catch (e) { /* geen opslag */ }
-  select.value = option.value;
-  select.dispatchEvent(new Event('change', { bubbles: true }));
+  var changed = false;
+  present.forEach(function (f) {
+    // Na de zoekopdracht laadt dezelfde pagina opnieuw: een bewuste keuze van "Alle" blijft dan staan.
+    if (flagged(f.id)) return;
+
+    var select = document.getElementById(f.id);
+    var current = select.options[select.selectedIndex];
+    if (!current || norm(current.text) !== 'alle') return;
+
+    var option = findOption(select, m[1]);
+    if (!option) { console.warn('[bipp-budgetverantwoordelijke] geen optie voor', m[1], 'bij', f.name); return; }
+
+    setFlag(f.id, true);
+    select.value = option.value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    changed = true;
+  });
+  if (!changed) return;
 
   // De dropdown heeft geen autopostback: druk zelf op Zoeken.
   setTimeout(function () {
