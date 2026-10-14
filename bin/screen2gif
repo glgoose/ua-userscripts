@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Zet een schermopname (.mov/.mp4) om in een kleine GIF voor een update aan collega's.
+# Eén ffmpeg-pass: fps en breedte omlaag, eigen kleurenpalet, geen dithering-ruis.
+#
+# Gebruik: bin/screen2gif <opname> [opties]
+#   bin/screen2gif ~/Desktop/opname.mov
+#   bin/screen2gif opname.mov --crop 1400:800:60:120 --start 2 --duur 9
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Gebruik: bin/screen2gif <opname> [opties]
+
+  <opname>           .mov of .mp4 van Cmd+Shift+5
+
+Opties:
+  --crop B:H:X:Y     snij bij op het venster (breedte:hoogte:x:y, in pixels van de opname)
+  --start S          sla de eerste S seconden over
+  --duur S           maximaal S seconden (standaard 10)
+  --breedte PX       breedte van de GIF (standaard 800)
+  --fps N            beelden per seconde (standaard 10)
+  --kleuren N        kleuren in het palet, 16 tot 256 (standaard 96)
+  --uit PAD          uitvoerbestand (standaard naast de opname, .gif)
+  --help, -h         deze uitleg
+USAGE
+}
+
+crop="" start=0 duur=10 breedte=800 fps=10 kleuren=96 uit="" in=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --crop)    crop="${2:?--crop vraagt B:H:X:Y}"; shift ;;
+    --start)   start="${2:?--start vraagt seconden}"; shift ;;
+    --duur)    duur="${2:?--duur vraagt seconden}"; shift ;;
+    --breedte) breedte="${2:?--breedte vraagt pixels}"; shift ;;
+    --fps)     fps="${2:?--fps vraagt een getal}"; shift ;;
+    --kleuren) kleuren="${2:?--kleuren vraagt een getal}"; shift ;;
+    --uit)     uit="${2:?--uit vraagt een pad}"; shift ;;
+    --help|-h) usage; exit 0 ;;
+    -*) echo "fout: onbekende optie $1" >&2; usage >&2; exit 2 ;;
+    *)  in="$1" ;;
+  esac
+  shift
+done
+
+[ -n "$in" ] || { usage >&2; exit 2; }
+[ -f "$in" ] || { echo "fout: $in bestaat niet" >&2; exit 1; }
+command -v ffmpeg >/dev/null || { echo "fout: ffmpeg ontbreekt (brew install ffmpeg)" >&2; exit 1; }
+[ -n "$uit" ] || uit="${in%.*}.gif"
+
+filter="fps=${fps},scale=${breedte}:-1:flags=lanczos"
+[ -z "$crop" ] || filter="crop=${crop},${filter}"
+
+ffmpeg -v error -y -ss "$start" -t "$duur" -i "$in" \
+  -vf "${filter},split[a][b];[a]palettegen=max_colors=${kleuren}:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" \
+  -loop 0 "$uit"
+
+bytes=$(stat -f%z "$uit")
+echo "$uit  $((bytes / 1024)) KB"
