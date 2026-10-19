@@ -89,7 +89,7 @@
     if (!bar) build();
     var base = 'UA proxy down.';
     if (!s) {
-      text.textContent = 'uaproxyd is not running: this page loaded without UA access.';
+      text.textContent = 'uaproxyd is not running.';
       btn.disabled = true;
     } else if (state === 'connecting') {
       text.textContent = s.mfa ? 'Enter ' + s.mfa + ' in the Authenticator app.' : 'Connecting to the UA proxy.';
