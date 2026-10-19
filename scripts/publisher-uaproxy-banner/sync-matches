@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Rewrites the @match lines of publisher-uaproxy-banner.user.js from the one publisher list
+# (dotfiles lib/uaproxy/publishers.txt), so the list stays the single source.
+# Usage: sync-matches [--check|-c] [--help|-h]
+#   --check, -c   change nothing, exit 1 when the @match lines differ from the list
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT="$HERE/publisher-uaproxy-banner.user.js"
+LIST="${PUBLISHERS:-$HOME/dotfiles/lib/uaproxy/publishers.txt}"
+CHECK=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --check|-c) CHECK=true; shift ;;
+    --help|-h)  sed -n '2,5p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "Error: unknown option: $1" >&2; exit 1 ;;
+  esac
+done
+
+[[ -f "$LIST" ]] || { echo "Error: publisher list not found: $LIST" >&2; exit 1; }
+
+matches=$(sed 's/#.*//; s/[[:space:]]//g; /^$/d' "$LIST" | awk '{ printf "// @match        *://*.%s/*\n", $0 }')
+new=$(MATCHES="$matches" awk '
+  /^\/\/ @match / { if (!done) { print ENVIRON["MATCHES"]; done = 1 } ; next }
+  { print }' "$SCRIPT")
+
+if $CHECK; then
+  [[ "$new" == "$(cat "$SCRIPT")" ]] || { echo "Error: @match lines differ from $LIST; run sync-matches" >&2; exit 1; }
+else
+  printf '%s\n' "$new" > "$SCRIPT"
+fi
