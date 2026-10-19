@@ -99,6 +99,7 @@
       btn.disabled = false;
     }
     btn.textContent = state === 'connecting' ? 'Connecting' : 'Connect';
+    bar.style.background = state === 'connecting' ? '#b45309' : '#b3261e';
   }
 
   function hide() {
