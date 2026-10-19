@@ -5,11 +5,9 @@ proxy laadt de pagina zonder UA-toegang en geeft een Zotero-save geen PDF.
 
 ## Installeren
 
-- Open `http://127.0.0.1:18088/ua-banner.user.js` in Chrome (`uaproxyd` moet draaien). De daemon
-  zet het token in de kopie, dus er hoeft niets ingevuld te worden.
-- Dev-spoor: `bin/dev-stub publisher-uaproxy-banner`. Het token zit niet in de repo, dus de
-  eerste klik op Connect vraagt ernaar (`cat ~/.local/share/uaproxyd/token`) en onthoudt het in
-  Tampermonkey.
+- `bin/dev-stub publisher-uaproxy-banner`, plak de stub in een nieuw Tampermonkey-script.
+- Het token zit niet in de repo: de eerste klik op Connect vraagt ernaar
+  (`cat ~/.local/share/uaproxyd/token`) en onthoudt het in Tampermonkey.
 
 ## Hoe het werkt
 

@@ -41,10 +41,9 @@
 
   var BASE = 'http://127.0.0.1:18088';
   var POLL_MS = 3000;
-  // uaproxyd fills in {{TOKEN}} when it serves this file; the dev-stub route has no token, so
-  // the first click on Connect asks for it once and keeps it in Tampermonkey storage.
-  var BAKED = '{{TOKEN}}';
-  var token = BAKED.charAt(0) === '{' ? GM_getValue('token', '') : BAKED;
+  // The token is not in the repo: the first click on Connect asks for it once and keeps it in
+  // Tampermonkey storage.
+  var token = GM_getValue('token', '');
 
   var bar = null, text = null, btn = null, timer = null;
 
