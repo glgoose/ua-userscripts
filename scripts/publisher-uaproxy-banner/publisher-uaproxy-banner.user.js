@@ -87,9 +87,9 @@
     var state = s && s.state;
     if (state === 'up' || (s && s.on_ua && state === 'down')) { hide(); return; }
     if (!bar) build();
-    var base = 'UA proxy down.';
+    var base = 'UA proxy down';
     if (!s) {
-      text.textContent = 'uaproxyd is not running.';
+      text.textContent = 'uaproxyd is not running';
       btn.disabled = true;
     } else if (state === 'connecting') {
       text.textContent = s.mfa ? 'Enter ' + s.mfa + ' in the Authenticator app.' : 'Connecting to the UA proxy.';
