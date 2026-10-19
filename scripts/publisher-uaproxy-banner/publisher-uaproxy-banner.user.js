@@ -87,7 +87,7 @@
     var state = s && s.state;
     if (state === 'up' || (s && s.on_ua && state === 'down')) { hide(); return; }
     if (!bar) build();
-    var base = 'UA proxy down: this page loaded without UA access, so a Zotero save gets no PDF.';
+    var base = 'UA proxy down: this page loaded without UA access.';
     if (!s) {
       text.textContent = 'uaproxyd is not running: this page loaded without UA access.';
       btn.disabled = true;
