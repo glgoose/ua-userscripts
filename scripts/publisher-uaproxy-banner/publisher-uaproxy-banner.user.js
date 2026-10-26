@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Algemeen: UA-proxy waarschuwing op uitgeverspagina's
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.0.0
+// @version      1.0.1
 // @description  Rode balk op uitgeverspagina's als de UA-proxy uit staat, met een knop om te verbinden.
 // @author       glgoose
 // @license      GPL-3.0-or-later
-// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/publisher-uaproxy-banner
-// @supportURL   https://github.com/glgoose/ua-userscripts/issues
+// @homepageURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/src/branch/main/scripts/publisher-uaproxy-banner
+// @supportURL   https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/issues
 // @match        *://*.tandfonline.com/*
 // @match        *://*.taylorfrancis.com/*
 // @match        *://*.sagepub.com/*

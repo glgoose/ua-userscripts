@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         PeopleSoft: werkende "Downloaden naar Excel"
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.1.0
+// @version      1.1.1
 // @description  Vervangt de kapotte PeopleSoft grid-knop "Downloaden naar Excel" door een echte XLSX-export die uit de DOM wordt opgebouwd.
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later
-// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/peoplesoft-excel-download
-// @supportURL   https://github.com/glgoose/ua-userscripts/issues
-// @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js
-// @updateURL    https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js
+// @homepageURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/src/branch/main/scripts/peoplesoft-excel-download
+// @supportURL   https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/issues
+// @downloadURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js
+// @updateURL    https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js
 // @match        https://app.psoft.uantwerpen.be/*
 // @require      https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js
 // @grant        GM_info

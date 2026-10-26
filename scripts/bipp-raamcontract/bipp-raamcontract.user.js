@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         BIPP: "Inclusief niet-raamcontractartikelen" standaard aan
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.0.0
+// @version      1.0.1
 // @description  Vinkt "Inclusief niet-raamcontractartikelen" aan zodra de zoekpagina laadt.
 // @author       glgoose
 // @license      GPL-3.0-or-later
-// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/bipp-raamcontract
-// @supportURL   https://github.com/glgoose/ua-userscripts/issues
-// @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js
-// @updateURL    https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js
+// @homepageURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/src/branch/main/scripts/bipp-raamcontract
+// @supportURL   https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/issues
+// @downloadURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js
+// @updateURL    https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js
 // @match        https://bipp.biotechpartner.be/web/*
 // @run-at       document-idle
 // @grant        none

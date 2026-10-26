@@ -2,7 +2,7 @@
 
 Zet het vinkje *Inclusief niet-raamcontractartikelen* op de zoekpagina van BIPP standaard aan.
 
-[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js)
+[**Installeren**](https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js)
 · gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Hoe het werkt

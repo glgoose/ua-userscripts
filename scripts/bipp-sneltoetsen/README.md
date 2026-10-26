@@ -14,7 +14,7 @@ Ctrl+letter drukt in BIPP op een knop. De letter is onderstreept, de tooltip too
 
 Verwijderen, Annuleren en In wachtstand krijgen bewust geen sneltoets: die zijn niet terug te draaien of komen zelden voor.
 
-[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-sneltoetsen/bipp-sneltoetsen.user.js)
+[**Installeren**](https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-sneltoetsen/bipp-sneltoetsen.user.js)
 · gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Hoe het werkt

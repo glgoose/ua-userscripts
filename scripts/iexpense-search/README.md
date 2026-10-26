@@ -4,7 +4,7 @@ Vervangt op Expenses Home de tabel *Update Expense Reports* door dezelfde tabel 
 tegelijk. Zoeken en sorteren gebeurt lokaal, dus zonder de trage stap langs de server die OAF
 bij elke klik doet.
 
-[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js)
+[**Installeren**](https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/iexpense-search/iexpense-search.user.js)
 · gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Gebruik

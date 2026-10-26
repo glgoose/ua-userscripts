@@ -2,7 +2,7 @@
 
 Zet in BIPP het filter *Budget verantwoordelijke* op *Aanvraag evalueren* en het filter *Aanvrager* op *Aanvragen* standaard op jezelf in plaats van *Alle*, en start de zoekopdracht.
 
-[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetverantwoordelijke/bipp-budgetverantwoordelijke.user.js)
+[**Installeren**](https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-budgetverantwoordelijke/bipp-budgetverantwoordelijke.user.js)
 · gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Hoe het werkt

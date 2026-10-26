@@ -6,7 +6,7 @@ letters, dus "Poule" vinden in "Restaurant Poule & Poulette B.V." lukt niet. Met
 Het originele `<select>` blijft de bron van waarheid en wordt enkel verborgen. Het formulier
 verstuurt dus exact hetzelfde als voorheen.
 
-[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/select-search/select-search.user.js)
+[**Installeren**](https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/select-search/select-search.user.js)
 · gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Gebruik

@@ -6,7 +6,7 @@ script vangt de klik op en bouwt zelf een `.xlsx` uit wat er in de tabel staat.
 De grid-knop van PeopleSoft zelf levert een bestand op dat Excel niet wil of niet goed leest.
 Deze aanpak omzeilt de server volledig: wat je op je scherm ziet is wat in het bestand komt.
 
-[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js)
+[**Installeren**](https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js)
 · gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Gebruik

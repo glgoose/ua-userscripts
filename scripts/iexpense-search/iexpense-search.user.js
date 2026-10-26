@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         iExpense: doorzoekbare rapportentabel
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.8.0
+// @version      1.8.1
 // @description  Vervangt "Update Expense Reports" op Expenses Home door dezelfde tabel met alle rijen tegelijk, doorzoekbaar en sorteerbaar zonder server round trips, in een scrollvenster van vaste hoogte zodat de pagina niet verspringt, en zet Notifications bovenaan met Track Submitted onderaan
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later
-// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/iexpense-search
-// @supportURL   https://github.com/glgoose/ua-userscripts/issues
-// @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js
-// @updateURL    https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js
+// @homepageURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/src/branch/main/scripts/iexpense-search
+// @supportURL   https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/issues
+// @downloadURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/iexpense-search/iexpense-search.user.js
+// @updateURL    https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/iexpense-search/iexpense-search.user.js
 // @match        https://ofprd.uantwerpen.be/OA_HTML/*
 // @grant        none
 // @run-at       document-idle

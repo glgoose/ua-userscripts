@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         BIPP: budgetcode in het winkelmandje
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.7.0
+// @version      1.7.1
 // @description  Zet de budgetcode als dropdown in de winkelmandjerij zelf, onder de grootboekrekening, zodat je niet meer via de aparte pagina Selectie analytische velden moet en de gekozen code ook gewoon ziet staan. Slaat op via een achtergrond-postback en zet de code ook in Interne commentaar.
 // @author       Glenn Goossens
 // @license      GPL-3.0-or-later
-// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/bipp-budgetcode
-// @supportURL   https://github.com/glgoose/ua-userscripts/issues
-// @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js
-// @updateURL    https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js
+// @homepageURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/src/branch/main/scripts/bipp-budgetcode
+// @supportURL   https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/issues
+// @downloadURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js
+// @updateURL    https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js
 // @match        https://bipp.biotechpartner.be/web/*
 // @grant        none
 // @run-at       document-idle

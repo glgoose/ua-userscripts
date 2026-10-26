@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         BIPP: sneltoetsen voor knoppen
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.1.1
+// @version      1.1.2
 // @description  Ctrl+letter drukt op Bevestigen (B), Zoeken (Z), Reset (R), Nieuw (N), Opslaan (S), Indienen (I) en Terug (T). De letter is onderstreept en bij ingedrukte Ctrl verschijnt de sneltoets onder de knop.
 // @author       glgoose
 // @license      GPL-3.0-or-later
-// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/bipp-sneltoetsen
-// @supportURL   https://github.com/glgoose/ua-userscripts/issues
-// @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-sneltoetsen/bipp-sneltoetsen.user.js
-// @updateURL    https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-sneltoetsen/bipp-sneltoetsen.user.js
+// @homepageURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/src/branch/main/scripts/bipp-sneltoetsen
+// @supportURL   https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/issues
+// @downloadURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-sneltoetsen/bipp-sneltoetsen.user.js
+// @updateURL    https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-sneltoetsen/bipp-sneltoetsen.user.js
 // @match        https://bipp.biotechpartner.be/web/*
 // @run-at       document-idle
 // @grant        none

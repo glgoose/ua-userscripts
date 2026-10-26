@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         BIPP: budgetverantwoordelijke standaard op de ingelogde gebruiker
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.1.0
+// @version      1.1.1
 // @description  Zet "Budget verantwoordelijke" bij Aanvraag evalueren en "Aanvrager" bij Aanvragen op jezelf in plaats van "Alle" en start de zoekopdracht.
 // @author       glgoose
 // @license      GPL-3.0-or-later
-// @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/bipp-budgetverantwoordelijke
-// @supportURL   https://github.com/glgoose/ua-userscripts/issues
-// @downloadURL  https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetverantwoordelijke/bipp-budgetverantwoordelijke.user.js
-// @updateURL    https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetverantwoordelijke/bipp-budgetverantwoordelijke.user.js
+// @homepageURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/src/branch/main/scripts/bipp-budgetverantwoordelijke
+// @supportURL   https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/issues
+// @downloadURL  https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-budgetverantwoordelijke/bipp-budgetverantwoordelijke.user.js
+// @updateURL    https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-budgetverantwoordelijke/bipp-budgetverantwoordelijke.user.js
 // @match        https://bipp.biotechpartner.be/web/*
 // @run-at       document-idle
 // @grant        none

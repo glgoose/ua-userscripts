@@ -8,7 +8,7 @@ BIPP verbergt die code vandaag volledig: na *Creëer*, kiezen, *Opslaan* en *Ter
 alleen nog `Bekijk`, in het groen, en die kleur blijft ook staan als de code weer leeg is. De
 gekozen waarde zit wel al in de pagina, maar alleen als tooltip op die link.
 
-[**Installeren**](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js)
+[**Installeren**](https://gitea.flw.uantwerpen.be/glenn/ua-userscripts/raw/branch/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js)
 · gebeurt er niets, zie de [installatie-uitleg](../../README.md).
 
 ## Gebruik
