@@ -6,6 +6,7 @@
 | **BIPP**       | budgetcode kiezen en zien in het winkelmandje        | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetcode/bipp-budgetcode.user.js)                     |
 | **BIPP**       | "Inclusief niet-raamcontractartikelen" standaard aan | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-raamcontract/bipp-raamcontract.user.js)                 |
 | **BIPP**       | budgetverantwoordelijke en aanvrager standaard op jezelf | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-budgetverantwoordelijke/bipp-budgetverantwoordelijke.user.js) |
+| **BIPP**       | Ctrl+B voor Bevestigen, met zichtbare hint            | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/bipp-sneltoetsen/bipp-sneltoetsen.user.js)                   |
 | **iExpense**   | alle onkostenrapporten in één doorzoekbare tabel     | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/iexpense-search/iexpense-search.user.js)                     |
 | **PeopleSoft** | werkende knop "Downloaden naar Excel"                | [installeren](https://raw.githubusercontent.com/glgoose/ua-userscripts/main/scripts/peoplesoft-excel-download/peoplesoft-excel-download.user.js) |
 
