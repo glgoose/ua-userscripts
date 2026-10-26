@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BIPP: doorzoekbare dropdowns
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.8.3
+// @version      1.8.4
 // @description  Geeft elke <select> met veel opties een zoekveld met substring-zoeken.
 // @author       glgoose
 // @license      GPL-3.0-or-later
@@ -136,7 +136,12 @@
   // BIPP rendert ids als ctl00_..._resultTable_ctl03_interfaceAccountList. Rij 3 en rij 4 zijn
   // hetzelfde veld en horen dus één lijst te delen: de rij- en volgnummers gaan eruit. Levert dat
   // niets op, dan krijgt die select geen recent-blok en blijft hij gewoon doorzoekbaar.
+  // Uit op de loginpagina: daar kiest iedereen een participant uit een lange lijst en schuift een
+  // recent-blok enkel gewoonte-keuzes bovenaan. Zoeken blijft werken. `data-ss-recent="off"` doet
+  // hetzelfde voor één veld.
   function recentKey(select) {
+    if (select.getAttribute && select.getAttribute('data-ss-recent') === 'off') return '';
+    if (/\/login\.aspx$/i.test((select.ownerDocument.defaultView || window).location.pathname)) return '';
     var expliciet = select.getAttribute && select.getAttribute('data-ss-recent-key');
     if (expliciet) return expliciet;
     var ruw = select.name || select.id || '';

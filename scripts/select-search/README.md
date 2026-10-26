@@ -81,6 +81,7 @@ stil: is de opslag vol of geblokkeerd, dan verdwijnt het recent-blok en werkt de
 | | |
 |---|---|
 | `data-ss-recent-key="..."` | Eigen veldsleutel, in plaats van die uit `name` of `id`. Nodig bij een `<select>` zonder allebei. |
+| `data-ss-recent="off"` | Geen recent-blok en niets onthouden voor dit veld, zoeken blijft werken. Op een pagina die op `Login.aspx` eindigt staat dit standaard aan. |
 | `data-ss-recent="manual"` | Het blok en `Delete` werken, maar kiezen onthoudt niets. Voor wie pas mag onthouden na een bevestiging van de server. |
 | `window.selectSearch.remember(selectOfSleutel, value, label)` | Zet een waarde in recent en tekent het blok opnieuw. |
 | `window.selectSearch.forget(selectOfSleutel, value)` | Haalt ze er weer uit. |
