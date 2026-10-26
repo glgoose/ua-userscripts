@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         BIPP: sneltoetsen voor knoppen
 // @namespace    https://github.com/glgoose/ua-userscripts
-// @version      1.1.0
-// @description  Ctrl+letter drukt op Bevestigen (B), Zoeken (Z), Reset (R), Nieuw (N), Opslaan (S), Indienen (I) en Terug (T). De letter is onderstreept en bij ingedrukte Ctrl verschijnt de sneltoets boven de knop.
+// @version      1.1.1
+// @description  Ctrl+letter drukt op Bevestigen (B), Zoeken (Z), Reset (R), Nieuw (N), Opslaan (S), Indienen (I) en Terug (T). De letter is onderstreept en bij ingedrukte Ctrl verschijnt de sneltoets onder de knop.
 // @author       glgoose
 // @license      GPL-3.0-or-later
 // @homepageURL  https://github.com/glgoose/ua-userscripts/tree/main/scripts/bipp-sneltoetsen
@@ -99,7 +99,7 @@
       tip.textContent = hint(k);
       tip.style.cssText = 'position:absolute;z-index:99999;pointer-events:none;white-space:nowrap;' +
         'font:11px ui-monospace,Menlo,Consolas,monospace;background:#1f2937;color:#fff;border-radius:4px;padding:1px 6px;' +
-        'left:' + (r.left + window.scrollX + r.width / 2) + 'px;top:' + (r.top + window.scrollY - 22) + 'px;transform:translateX(-50%)';
+        'left:' + (r.left + window.scrollX + r.width / 2) + 'px;top:' + (r.bottom + window.scrollY + 4) + 'px;transform:translateX(-50%)';
       document.body.appendChild(tip);
       tips.push(tip);
     });

@@ -1,6 +1,6 @@
 # bipp-sneltoetsen
 
-Ctrl+letter drukt in BIPP op een knop. De letter is onderstreept, de tooltip toont de sneltoets, en zolang je Ctrl ingedrukt houdt verschijnt de sneltoets boven elke knop die er een heeft.
+Ctrl+letter drukt in BIPP op een knop. De letter is onderstreept, de tooltip toont de sneltoets, en zolang je Ctrl ingedrukt houdt verschijnt de sneltoets onder elke knop die er een heeft.
 
 | toets  | knop       | waar                                              |
 | ------ | ---------- | ------------------------------------------------- |
