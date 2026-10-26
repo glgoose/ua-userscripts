@@ -31,7 +31,7 @@ Eigenschappen van de stub:
 - **Metadata komt uit de stub**, niet uit de required file. `@match`, `@grant`, `@run-at` en `@require` moeten erin staan; `dev-stub` neemt ze over. Opnieuw genereren en installeren is alleen nodig als die wijzigen.
 - **Geen `@downloadURL` en `@updateURL`.** `@updateURL none` geeft een eslint-waarschuwing in de editor. Een rij die ooit van de raw-URL kwam, biedt alsnog updates aan die de stub overschrijven: verwijder die rij en maak de stub opnieuw via **Create a new script**.
 - **Vaste `0.0.0-dev`**, geen bump nodig: de code komt bij elke paginaload van schijf.
-- **Met `src/`** wijst `@require` daarnaar. Opslaan en herladen volstaat; `build.sh` draai je pas bij publiceren.
+- **`@require` wijst naar het script zelf.** Opslaan en de pagina herladen volstaat.
 - **Vereist** dat **Allow access to file URLs** aanstaat (`chrome://extensions`, Details).
 
 ## Publiceren

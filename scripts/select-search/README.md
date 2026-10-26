@@ -95,33 +95,16 @@ stil: is de opslag vol of geblokkeerd, dan verdwijnt het recent-blok en werkt de
 | Niets gebeurt op de pagina | Check in het Tampermonkey-dashboard of de URL onder `@match` valt |
 | Formulier zit in een iframe van een ander domein | Niet op te lossen, browserbeperking |
 
-## Bookmarklet
-
-Alternatief zonder extensie, voor wie geen extensies mag installeren. Werkt overal, maar je klikt
-hem zelf aan per pagina.
-
-1. Kopieer de inhoud van [`bookmarklet.txt`](bookmarklet.txt).
-2. Maak een bladwijzer met naam `Zoek in dropdown` en die tekst als URL.
-3. Klik hem aan op de pagina met de dropdown. Nog eens klikken doet een herscan.
-
-Sites met een strikte Content-Security-Policy blokkeren bookmarklets. Dan is de extensie de enige
-route.
-
 ## Ontwikkelen
 
-`src/select-search.js` bevat de volledige logica, zonder dependencies.
+`select-search.user.js` bevat de volledige logica, zonder dependencies. Test met de fixture:
 
 ```sh
-./build.sh                    # genereert select-search.user.js en bookmarklet.txt
 python3 -m http.server 8731   # open http://localhost:8731/test/fixture.html
 ```
 
-Hoog bij elke wijziging `@version` op in `src/userscript-header.txt`, anders krijgt niemand de
-update binnen.
-
 Tijdens het ontwikkelen laad je het script via een dev-stub in plaats van een geplakte kopie,
-zie [Ontwikkelen](../../AGENTS.md#dev-stub-vs-gebruik). Draai eerst `./build.sh`, want de stub wijst
-naar `select-search.user.js`.
+zie [Ontwikkelen](../../AGENTS.md#dev-stub-vs-gebruik). Hoog bij elke wijziging `@version` op.
 
 ## Licentie
 
