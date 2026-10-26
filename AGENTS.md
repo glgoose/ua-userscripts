@@ -21,9 +21,19 @@ De grootte in het dashboard zegt dus in welk spoor een rij zit.
 bin/dev-stub bipp-budgetcode
 ```
 
-De stub gaat meteen naar het klembord. In Tampermonkey neem je het potlood van de bestaande
-rij, dan Cmd+A, Cmd+V, Cmd+S. Via de `+`-tab krijg je een tweede rij in plaats van een
-bijgewerkte, want Tampermonkey herkent een script aan `@namespace` plus `@name`.
+Claude installeert de stub zelf, Glenn plakt niets. Serveer de stub (`--no-copy`) als
+`<map>.user.js` vanuit de scratchpad op een vrije poort, open die URL in de Claude-in-Chrome-tab
+en Tampermonkey opent zijn installatiepagina. Die pagina (`chrome-extension://`) is voor de
+browsertools onbereikbaar, dus de enige stap voor Glenn is daar op **Install** klikken. Stop de
+server daarna.
+
+- **Juiste Chrome-profiel.** BIPP en de Tampermonkey-scripts zitten in het profiel **UA**
+  (Profile 1). Met de Claude-extensie in twee profielen verbindt `list_connected_browsers` met
+  het profiel dat eerst antwoordt; kies UA met `select_browser`. Of je goed zit, zie je aan de
+  `History` van het profiel na een bezoek vanuit de tool.
+- Een bestaande rij met dezelfde `@namespace` plus `@name` wordt bijgewerkt. Een andere `@name`
+  geeft een tweede rij die dezelfde file nog eens laadt, dus elke sneltoets dubbel: verwijder
+  dan eerst de oude rij.
 
 `bin/dev-stub --list` toont de scriptmappen, `--no-copy` slaat het klembord over.
 
